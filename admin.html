@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nails by Bevs | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--white:#fff;--blush:#fbf3f1;--oxblood:#7a1626;--dark:#4f0d16;--ink:#2a1416;--line:#e7d6d2;--muted:#7a6264}
+    *{box-sizing:border-box}body{margin:0;background:var(--blush);color:var(--ink);font:400 15px/1.5 Jost,sans-serif}button,input,select{font:inherit}.shell{max-width:1180px;margin:0 auto;padding:32px 24px 64px}h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:500;color:var(--dark)}h1{font-size:2.6rem;margin:0}h2{font-size:1.8rem;margin:0 0 18px}.eyebrow{color:var(--oxblood);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}.panel{background:var(--white);border:1px solid var(--line);padding:24px;margin-top:24px}.login{max-width:420px;margin:12vh auto}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.field label{color:var(--muted);font-size:.82rem}.field input,.field select{border:1px solid var(--line);padding:11px 12px;color:var(--ink);background:var(--white)}.button{border:1px solid var(--oxblood);background:var(--oxblood);color:var(--white);padding:10px 16px;cursor:pointer}.button.secondary{background:var(--white);color:var(--oxblood)}.button:disabled{opacity:.5;cursor:not-allowed}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center}.booking{border-top:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px}.booking:first-child{border-top:0}.booking h3{font-size:1.35rem;margin:0 0 5px}.booking p{margin:3px 0;color:var(--muted)}.booking strong{color:var(--ink)}.status{display:inline-block;padding:4px 8px;font-size:.75rem;letter-spacing:.05em}.status-PENDING{background:#f7ead0;color:#795313}.status-CONFIRMED{background:#e3f1e4;color:#32613a}.status-REJECTED,.status-CANCELLED{background:#f3dddd;color:#7a1626}.status-COMPLETED{background:#e4e4ed;color:#474765}.actions{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.links a{display:block;color:var(--oxblood);font-size:.85rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.message{min-height:1.5em;color:var(--oxblood);font-size:.85rem}.hidden{display:none!important}@media(max-width:720px){.shell{padding:22px 16px}.booking{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.toolbar{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section id="login-panel" class="panel login">
+      <p class="eyebrow">Nails by Bevs</p><h1>Admin login</h1>
+      <form id="login-form">
+        <div class="field"><label for="login-email">Email</label><input id="login-email" type="email" required></div>
+        <div class="field"><label for="login-password">Password</label><input id="login-password" type="password" required></div>
+        <button class="button" type="submit">Sign in</button><p id="login-message" class="message"></p>
+      </form>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="toolbar"><div><p class="eyebrow">Private studio</p><h1>Booking control</h1></div><button id="logout" class="button secondary" type="button">Sign out</button></div>
+      <section class="panel"><div class="toolbar"><h2>Booking requests</h2><button id="refresh" class="button secondary" type="button">Refresh</button></div><div id="bookings"></div><p id="dashboard-message" class="message"></p></section>
+      <section class="panel"><h2>Block availability</h2><form id="block-form" class="grid"><div class="field"><label for="block-date">Date</label><input id="block-date" type="date" required></div><div class="field"><label for="block-time">Time</label><select id="block-time"><option value="ALL">All slots</option><option value="09:00">9:00 AM</option><option value="11:00">11:00 AM</option><option value="16:00">4:00 PM</option><option value="18:00">6:00 PM</option><option value="21:00">9:00 PM</option></select></div><div class="field"><label for="block-note">Note</label><input id="block-note" placeholder="Rest day"></div><button class="button" type="submit">Block slot</button></form><div id="blocks"></div></section>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE';
+    const SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY_HERE';
+    const ADMIN_API_URL = SUPABASE_URL + '/functions/v1/admin-api';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const loginPanel = document.getElementById('login-panel');
+    const dashboard = document.getElementById('dashboard');
+    const bookingsElement = document.getElementById('bookings');
+    const blocksElement = document.getElementById('blocks');
+    const dashboardMessage = document.getElementById('dashboard-message');
+
+    async function adminRequest(body) {
+      const { data } = await supabaseClient.auth.getSession();
+      const response = await fetch(ADMIN_API_URL, {
+        method: body ? 'POST' : 'GET',
+        headers: { Authorization: 'Bearer ' + data.session.access_token, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Admin request failed');
+      return result;
+    }
+
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[character])); }
+    function renderBookings(bookings) {
+      bookingsElement.innerHTML = bookings.length ? bookings.map((booking) => {
+        const references = (booking.reference_urls || []).map((url, index) => `<a href="${url}" target="_blank" rel="noopener">Reference photo ${index + 1}</a>`).join('');
+        const confirmButton = booking.status === 'PENDING' ? `<button class="button" data-action="confirm" data-id="${booking.id}">Confirm</button>` : '';
+        return `<article class="booking"><div><h3>${escapeHtml(booking.full_name)} <span class="status status-${booking.status}">${booking.status}</span></h3><p><strong>${escapeHtml(booking.preferred_date)} at ${escapeHtml(String(booking.preferred_time).slice(0,5))}</strong></p><p>${escapeHtml(booking.service_summary)}</p><p>${escapeHtml(booking.email)}${booking.phone ? ' · ' + escapeHtml(booking.phone) : ''}</p><p>${escapeHtml(booking.admin_note || '')}</p><div class="links">${references}</div></div><div class="actions">${confirmButton}<button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button></div></article>`;
+      }).join('') : '<p>No booking requests yet.</p>';
+    }
+    function renderBlocks(blocks) { blocksElement.innerHTML = blocks.map((block) => `<p>${escapeHtml(block.block_date)} · ${escapeHtml(block.block_time)} · ${escapeHtml(block.admin_note || '')} <button class="button secondary" data-unblock="${block.id}">Unblock</button></p>`).join(''); }
+    async function loadDashboard() { const result = await adminRequest(); renderBookings(result.bookings); renderBlocks(result.blocks); }
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => { event.preventDefault(); const message = document.getElementById('login-message'); try { const { error } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value }); if (error) throw error; loginPanel.classList.add('hidden'); dashboard.classList.remove('hidden'); await loadDashboard(); } catch (error) { message.textContent = error.message; } });
+    document.getElementById('logout').addEventListener('click', async () => { await supabaseClient.auth.signOut(); dashboard.classList.add('hidden'); loginPanel.classList.remove('hidden'); });
+    document.getElementById('refresh').addEventListener('click', () => loadDashboard().catch((error) => { dashboardMessage.textContent = error.message; }));
+    bookingsElement.addEventListener('click', async (event) => { const button = event.target.closest('[data-action]'); if (!button) return; button.disabled = true; try { await adminRequest({ action: button.dataset.action === 'confirm' ? 'confirm' : 'status', id: button.dataset.id, status: 'REJECTED' }); await loadDashboard(); } catch (error) { dashboardMessage.textContent = error.message; button.disabled = false; } });
+    blocksElement.addEventListener('click', async (event) => { const button = event.target.closest('[data-unblock]'); if (!button) return; await adminRequest({ action: 'unblock', id: button.dataset.unblock }); await loadDashboard(); });
+    document.getElementById('block-form').addEventListener('submit', async (event) => { event.preventDefault(); await adminRequest({ action: 'block', date: document.getElementById('block-date').value, time: document.getElementById('block-time').value, note: document.getElementById('block-note').value }); event.target.reset(); await loadDashboard(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+project_id = "nails-by-bevs"
+
+[functions.booking-api]
+verify_jwt = false
+
+[functions.admin-api]
+verify_jwt = false

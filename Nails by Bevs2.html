@@ -66,7 +66,7 @@
   header.hero .btn.ghost:hover{background:var(--white);color:var(--oxblood-dark);}
   .btn{
     display:inline-block;background:var(--oxblood);color:var(--white);
-    padding:15px 36px;font-size:.95rem;letter-spacing:.02em;
+    padding:15px 36px;font-family:'Jost',sans-serif;font-size:.95rem;font-weight:400;letter-spacing:.02em;
     border:1px solid var(--oxblood);transition:background .2s,color .2s;
   }
   .btn:hover,.btn:focus-visible{background:var(--white);color:var(--oxblood);}
@@ -92,6 +92,13 @@
   .menu-item .dots{flex:1;border-bottom:1px dotted #c9a9ac;transform:translateY(-6px);}
   .menu-item .price{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--oxblood);white-space:nowrap;}
   .menu-col-head{display:flex;justify-content:space-between;align-items:flex-end}
+  .menu-category{margin-bottom:30px;}
+  .menu-category:last-child{margin-bottom:0;}
+  .menu-category h3{font-family:'Jost',sans-serif;color:var(--oxblood);font-size:.85rem;font-weight:400;letter-spacing:.04em;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  .menu-category h4{font-family:'Jost',sans-serif;color:#7a6264;font-size:.78rem;font-weight:400;letter-spacing:.03em;margin-top:18px;text-transform:uppercase;}
+  .menu-category .menu-item{padding:14px 0;}
+  .menu-category .menu-item .name{white-space:normal;}
+  .menu-note{text-align:center;color:#8b7072;font-size:.78rem;margin:-34px auto 30px;}
 
   /* GALLERY — photo grid */
   .gallery{
@@ -108,7 +115,7 @@
   @media(max-width:720px){.gallery{grid-template-columns:repeat(2,1fr);}}
 
   /* RESERVATION */
-  .book{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:900px;margin:0 auto;}
+  .book{display:block;max-width:760px;margin:0 auto;}
   form{display:flex;flex-direction:column;gap:16px;}
   label{font-size:.82rem;color:#7a6264;margin-bottom:5px;display:block;}
   input,select{
@@ -116,7 +123,76 @@
     font-family:'Jost',sans-serif;font-size:.95rem;color:var(--ink);
   }
   input:focus,select:focus{outline:2px solid var(--oxblood);outline-offset:1px;}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  select:disabled{color:#9e898b;background:#f3eceb;cursor:not-allowed;}
+  #booking-status{min-height:1.6em;color:var(--oxblood);font-size:.85rem;}
+  .calendar{width:100%;min-width:0;border:1px solid var(--line);background:var(--white);padding:14px;}
+  .calendar-toolbar{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;align-items:center;gap:4px;margin-bottom:12px;}
+  .calendar-toolbar strong{font-family:'Jost',sans-serif;font-size:.95rem;color:var(--oxblood-dark);white-space:nowrap;text-align:center;}
+  .calendar-nav{width:28px;height:28px;border:1px solid var(--line);background:var(--white);color:var(--oxblood);font-size:1rem;cursor:pointer;}
+  .calendar-nav:hover:not(:disabled),.calendar-nav:focus-visible:not(:disabled){background:var(--oxblood);color:var(--white);}
+  .calendar-nav:disabled{color:#c9b9b9;cursor:not-allowed;}
+  .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;}
+  .calendar-weekdays{color:#8b7072;font-size:.7rem;margin-bottom:4px;}
+  .calendar-day,.calendar-empty{min-height:34px;}
+  .calendar-day{border:1px solid transparent;background:var(--white);color:var(--ink);font:inherit;font-size:.83rem;cursor:pointer;}
+  .calendar-day:hover:not(:disabled),.calendar-day:focus-visible:not(:disabled){border-color:var(--oxblood);outline:none;}
+  .calendar-day.selected{background:var(--oxblood);color:var(--white);}
+  .calendar-day:disabled{background:#f1eae9;color:#b9a8a8;cursor:not-allowed;}
+  .calendar-day.selected:disabled{background:#c4aeb0;color:var(--white);}
+  .time-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .time-option{min-height:48px;border:1px solid var(--line);background:var(--white);color:var(--ink);font:inherit;cursor:pointer;}
+  .time-option:hover:not(:disabled),.time-option:focus-visible:not(:disabled){border-color:var(--oxblood);outline:none;}
+  .time-option.selected{background:var(--oxblood);border-color:var(--oxblood);color:var(--white);}
+  .time-option:disabled{background:#f1eae9;color:#b9a8a8;cursor:not-allowed;}
+  .time-empty{grid-column:1 / -1;padding:14px;border:1px solid var(--line);background:#f3eceb;color:#9e898b;text-align:center;font-size:.9rem;}
+  .calendar-error{grid-column:1 / -1;padding:18px 8px;color:#7a6264;text-align:center;font-size:.82rem;}
+  .service-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .service-mode{padding:11px 12px;border:1px solid var(--line);background:var(--white);color:var(--ink);font:inherit;cursor:pointer;}
+  .service-mode:hover,.service-mode:focus-visible{border-color:var(--oxblood);outline:none;}
+  .service-mode.selected{background:var(--oxblood);border-color:var(--oxblood);color:var(--white);}
+  .service-panel{display:flex;flex-direction:column;gap:14px;}
+  .service-panel[hidden]{display:none;}
+  .service-panel select{margin-top:5px;}
+  .addon-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:5px;}
+  .addon-choice{display:flex;align-items:flex-start;gap:8px;color:var(--ink);font-size:.88rem;line-height:1.3;}
+  .addon-choice input{width:auto;margin-top:3px;accent-color:var(--oxblood);}
+  .removal-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .selection-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:5px;}
+  .selection-option{min-height:46px;padding:10px;border:1px solid var(--line);background:var(--white);color:var(--ink);font:inherit;cursor:pointer;}
+  .selection-option:hover,.selection-option:focus-visible{border-color:var(--oxblood);outline:none;}
+  .selection-option.selected{background:var(--oxblood);border-color:var(--oxblood);color:var(--white);}
+  .selection-option:disabled{background:#f1eae9;border-color:var(--line);color:#b9a8a8;cursor:not-allowed;}
+  .addon-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--line);background:var(--white);font-size:.83rem;}
+  .addon-item.selected{border-color:var(--oxblood);}
+  .addon-item.disabled{opacity:.5;}
+  .quantity-control{display:flex;align-items:center;flex:0 0 auto;border:1px solid var(--line);}
+  .quantity-control button{width:25px;height:28px;border:0;background:var(--white);color:var(--oxblood);font-size:1rem;cursor:pointer;}
+  .quantity-control button:hover:not(:disabled),.quantity-control button:focus-visible:not(:disabled){background:var(--oxblood);color:var(--white);outline:none;}
+  .quantity-control button:disabled{color:#c9b9b9;cursor:not-allowed;}
+  .quantity-value{width:25px;text-align:center;color:var(--oxblood-dark);font-size:.85rem;}
+  body.modal-open{overflow:hidden;}
+  .booking-modal{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(42,20,22,.45);}
+  .booking-modal[hidden]{display:none;}
+  .booking-dialog{width:min(100%,480px);max-height:90vh;overflow:auto;background:var(--white);padding:30px;box-shadow:0 16px 50px rgba(42,20,22,.22);}
+  .booking-dialog h3{font-size:2rem;margin-bottom:8px;}
+  .booking-dialog>p{color:#7a6264;font-size:.9rem;margin-bottom:20px;}
+  .booking-summary{display:grid;grid-template-columns:125px 1fr;gap:10px 16px;margin:0 0 24px;padding:18px;background:var(--blush);}
+  .booking-summary dt{color:#7a6264;font-size:.78rem;}
+  .booking-summary dd{color:var(--ink);font-size:.9rem;margin:0;overflow-wrap:anywhere;}
+  .reference-picker{margin-top:4px;padding:14px;border:1px solid var(--line);background:var(--white);}
+  .reference-picker input[type="file"]{padding:8px 0;border:0;background:transparent;}
+  .reference-note{color:#8b7072;font-size:.78rem;margin-top:5px;}
+  .reference-list{color:var(--oxblood);font-size:.82rem;margin-top:8px;}
+  .booking-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .booking-actions .btn{width:100%;margin:0;cursor:pointer;text-align:center;}
+  .booking-modal-status{min-height:1.5em;margin-top:12px;color:var(--oxblood);font-size:.85rem;}
+  .booking-success{text-align:center;}
+  .booking-success[hidden]{display:none;}
+  .booking-success p{color:#7a6264;margin:12px 0 24px;}
+  @media(max-width:720px){.addon-list{grid-template-columns:1fr;}.removal-row{grid-template-columns:1fr;gap:10px;}}
+  @media(max-width:720px){.calendar{padding:10px;}.calendar-day,.calendar-empty{min-height:32px;}}
+  .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;}
+  .row2>div{min-width:0;}
   .book-note h3{font-size:1.7rem;margin-bottom:14px;}
   .book-note p{color:#5c3f42;margin-bottom:12px;font-size:.95rem;}
   @media(max-width:720px){.book{grid-template-columns:1fr;}}
@@ -162,30 +238,30 @@
       <p class="eyebrow">Services</p>
       <h2>What I offer</h2>
     </div>
+    <p class="menu-note">Sample pricing for the mockup — final rates may vary.</p>
     <div class="menu">
-      <div class="menu-item">
-        <span class="name">Classic Gel Manicure</span><span class="dots"></span>
-        <span class="price">₱600</span>
+      <div class="menu-category">
+        <h3>Base</h3>
+        <div class="menu-item"><span class="name">Soft Gel Nail Extensions</span><span class="dots"></span><span class="price">from ₱1,200</span></div>
+        <div class="menu-item"><span class="name">Gel Polish</span><span class="dots"></span><span class="price">₱600</span></div>
       </div>
-      <div class="menu-item">
-        <span class="name">Builder Gel Overlay</span><span class="dots"></span>
-        <span class="price">₱850</span>
+      <div class="menu-category">
+        <h3>Add-ons</h3>
+        <div class="menu-item"><span class="name">Chrome / Cat Eye / Glitter</span><span class="dots"></span><span class="price">+₱150</span></div>
+        <div class="menu-item"><span class="name">French Tip</span><span class="dots"></span><span class="price">+₱100</span></div>
+        <div class="menu-item"><span class="name">Charms / Stones / Pearl</span><span class="dots"></span><span class="price">+₱100</span></div>
+        <div class="menu-item"><span class="name">3D Design / Embossed</span><span class="dots"></span><span class="price">+₱300</span></div>
+        <div class="menu-item"><span class="name">Aura / Ombre</span><span class="dots"></span><span class="price">+₱200</span></div>
+        <div class="menu-item"><span class="name">Nail Art</span><span class="dots"></span><span class="price">from +₱150</span></div>
       </div>
-      <div class="menu-item">
-        <span class="name">Hand-Painted Nail Art</span><span class="dots"></span>
-        <span class="price">from ₱950</span>
-      </div>
-      <div class="menu-item">
-        <span class="name">Chrome / Cat-Eye Finish</span><span class="dots"></span>
-        <span class="price">+₱150</span>
-      </div>
-      <div class="menu-item">
-        <span class="name">Soft Gel Extensions</span><span class="dots"></span>
-        <span class="price">from ₱1,200</span>
-      </div>
-      <div class="menu-item">
-        <span class="name">Gel Removal &amp; Care</span><span class="dots"></span>
-        <span class="price">₱250</span>
+      <div class="menu-category">
+        <h3>Removal</h3>
+        <h4>My work</h4>
+        <div class="menu-item"><span class="name">Soft Gel</span><span class="dots"></span><span class="price">₱150</span></div>
+        <div class="menu-item"><span class="name">Gel</span><span class="dots"></span><span class="price">₱200</span></div>
+        <h4>Not my work</h4>
+        <div class="menu-item"><span class="name">Soft Gel</span><span class="dots"></span><span class="price">₱250</span></div>
+        <div class="menu-item"><span class="name">Gel</span><span class="dots"></span><span class="price">₱300</span></div>
       </div>
     </div>
   </div>
@@ -243,8 +319,7 @@
         <p>Appointments are limited to one client at a time, so booking ahead is the best way to get the date and design you want.</p>
         <p>You'll get a confirmation message once your request is reviewed.</p>
       </div>
-      <form name="booking" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
-        <input type="hidden" name="form-name" value="booking">
+      <form id="booking-form" name="booking">
         <p style="display:none">
           <label>Don't fill this out if you're human: <input name="bot-field"></label>
         </p>
@@ -254,32 +329,130 @@
         </div>
         <div class="row2">
           <div>
-            <label for="date">Preferred date</label>
-            <input id="date" name="date" type="date" required>
+            <label id="date-label">Preferred date</label>
+            <input id="date" name="date" type="hidden">
+            <div class="calendar" aria-labelledby="date-label">
+              <div class="calendar-toolbar">
+                <button id="calendar-prev" class="calendar-nav" type="button" aria-label="Previous month">&lsaquo;</button>
+                <strong id="calendar-month">Loading...</strong>
+                <button id="calendar-next" class="calendar-nav" type="button" aria-label="Next month">&rsaquo;</button>
+              </div>
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+              <div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Choose an appointment date"></div>
+            </div>
           </div>
           <div>
             <label for="time">Preferred time</label>
-            <input id="time" name="time" type="time" required>
+            <input id="time" name="time" type="hidden" required>
+            <div id="time-picker" class="time-picker" role="group" aria-label="Choose an appointment time">
+              <span class="time-empty">Choose a date first</span>
+            </div>
           </div>
         </div>
         <div>
-          <label for="service">Service</label>
-          <select id="service" name="service">
-            <option>Classic Gel Manicure</option>
-            <option>Hand-Painted Nail Art</option>
-            <option>Soft Gel Extensions</option>
-            <option>Gel Removal &amp; Care</option>
-          </select>
+          <label>Services</label>
+          <input id="booking-type" name="bookingType" type="hidden">
+          <input id="service-summary" name="service" type="hidden">
+          <input id="addons" name="addons" type="hidden">
+          <div id="base-service-panel" class="service-panel">
+            <div>
+              <label for="base-service">Base service</label>
+              <input id="base-service" name="baseService" type="hidden">
+              <div id="base-service-picker" class="selection-grid" role="group" aria-label="Choose a base service">
+                <button class="selection-option" type="button" data-selection-field="base-service" data-value="Soft Gel Nail Extensions">Soft Gel Nail Extensions</button>
+                <button class="selection-option" type="button" data-selection-field="base-service" data-value="Gel Polish">Gel Polish</button>
+              </div>
+            </div>
+            <div>
+              <label>Add-ons <span style="color:#8b7072">(optional with a base service)</span></label>
+              <div class="addon-list">
+                <div class="addon-item" data-addon="Chrome / Cat Eye / Glitter"><span>Chrome / Cat Eye / Glitter</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove chrome quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add chrome quantity">+</button></span></div>
+                <div class="addon-item" data-addon="French Tip"><span>French Tip</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove French tip quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add French tip quantity">+</button></span></div>
+                <div class="addon-item" data-addon="Charms / Stones / Pearl"><span>Charms / Stones / Pearl</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove charms quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add charms quantity">+</button></span></div>
+                <div class="addon-item" data-addon="3D Design / Embossed"><span>3D Design / Embossed</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove 3D design quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add 3D design quantity">+</button></span></div>
+                <div class="addon-item" data-addon="Aura / Ombre"><span>Aura / Ombre</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove aura quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add aura quantity">+</button></span></div>
+                <div class="addon-item" data-addon="Nail Art"><span>Nail Art</span><span class="quantity-control"><button type="button" data-quantity-action="decrease" aria-label="Remove nail art quantity">−</button><span class="quantity-value">0</span><button type="button" data-quantity-action="increase" aria-label="Add nail art quantity">+</button></span></div>
+              </div>
+            </div>
+          </div>
+          <div id="removal-panel" class="service-panel">
+            <div class="removal-row">
+              <div>
+                <label for="removal-source">Removal source <span style="color:#8b7072">(optional)</span></label>
+                <input id="removal-source" name="removalSource" type="hidden">
+                <div class="selection-grid" role="group" aria-label="Choose removal source">
+                  <button class="selection-option" type="button" data-selection-field="removal-source" data-value="My work">My work</button>
+                  <button class="selection-option" type="button" data-selection-field="removal-source" data-value="Not my work">Not my work</button>
+                </div>
+              </div>
+              <div>
+                <label for="removal-service">Removal type <span style="color:#8b7072">(optional)</span></label>
+                <input id="removal-service" name="removalService" type="hidden">
+                <div class="selection-grid" role="group" aria-label="Choose removal type">
+                  <button class="selection-option" type="button" data-selection-field="removal-service" data-value="Soft Gel">Soft Gel</button>
+                  <button class="selection-option" type="button" data-selection-field="removal-service" data-value="Gel">Gel</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div>
-          <label for="contact">Phone or email</label>
-          <input id="contact" name="contact" type="text" placeholder="0917 000 0000" required>
+          <label for="reference-images">Reference photos <span style="color:#8b7072">(optional, up to 3)</span></label>
+          <div class="reference-picker">
+            <input id="reference-images" type="file" accept="image/*" multiple>
+            <input id="reference-images-data" name="referenceImages" type="hidden">
+            <p class="reference-note">Upload photos of the nail set you want. Each image should be 5 MB or smaller.</p>
+            <p id="reference-list" class="reference-list" aria-live="polite"></p>
+          </div>
         </div>
-        <button type="submit" class="btn" style="border:none;cursor:pointer;margin-top:6px;">Request booking</button>
+        <div class="row2">
+          <div>
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" placeholder="hello@example.com" required>
+          </div>
+          <div>
+            <label for="phone">Phone <span style="color:#8b7072">(optional)</span></label>
+            <input id="phone" name="phone" type="tel" placeholder="0917 000 0000">
+          </div>
+        </div>
+        <button id="booking-submit" type="submit" class="btn" style="border:none;cursor:pointer;margin-top:6px;">Request booking</button>
+        <p id="booking-status" role="status" aria-live="polite"></p>
       </form>
     </div>
   </div>
 </section>
+
+<div id="booking-modal" class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title" hidden>
+  <div class="booking-dialog">
+    <div id="booking-review">
+      <h3 id="booking-modal-title">Review your booking</h3>
+      <p>Please check the details before sending your request.</p>
+      <dl class="booking-summary">
+        <dt>Name</dt><dd id="summary-name"></dd>
+        <dt>Date</dt><dd id="summary-date"></dd>
+        <dt>Time</dt><dd id="summary-time"></dd>
+        <dt>Base service</dt><dd id="summary-base"></dd>
+        <dt>Add-ons</dt><dd id="summary-addons"></dd>
+        <dt>Removal</dt><dd id="summary-removal"></dd>
+        <dt>Reference photos</dt><dd id="summary-references"></dd>
+        <dt>Email</dt><dd id="summary-email"></dd>
+        <dt>Phone</dt><dd id="summary-phone"></dd>
+      </dl>
+      <div class="booking-actions">
+        <button id="booking-edit" type="button" class="btn ghost">Edit booking</button>
+        <button id="booking-confirm" type="button" class="btn">Confirm booking</button>
+      </div>
+      <p id="booking-modal-status" class="booking-modal-status" role="status" aria-live="polite"></p>
+    </div>
+    <div id="booking-success" class="booking-success" hidden>
+      <h3>Request received</h3>
+      <p>Your booking request has been sent and is pending review. We will contact you after it has been confirmed.</p>
+      <button id="booking-success-close" type="button" class="btn">Close</button>
+    </div>
+  </div>
+</div>
 
 <footer id="contact">
   <div class="wrap">
@@ -301,6 +474,491 @@
     <div class="bottom">Nails by Bevs — mockup site, sample content only</div>
   </div>
 </footer>
+
+<script>
+  const BOOKING_API_URL = 'PASTE_SUPABASE_BOOKING_API_URL_HERE';
+  const bookingForm = document.getElementById('booking-form');
+  const bookingDate = document.getElementById('date');
+  const bookingTime = document.getElementById('time');
+  const timePicker = document.getElementById('time-picker');
+  const bookingSubmit = document.getElementById('booking-submit');
+  const bookingStatus = document.getElementById('booking-status');
+  const bookingModal = document.getElementById('booking-modal');
+  const bookingReview = document.getElementById('booking-review');
+  const bookingSuccess = document.getElementById('booking-success');
+  const bookingEdit = document.getElementById('booking-edit');
+  const bookingConfirm = document.getElementById('booking-confirm');
+  const bookingSuccessClose = document.getElementById('booking-success-close');
+  const bookingModalStatus = document.getElementById('booking-modal-status');
+  const summaryName = document.getElementById('summary-name');
+  const summaryDate = document.getElementById('summary-date');
+  const summaryTime = document.getElementById('summary-time');
+  const summaryBase = document.getElementById('summary-base');
+  const summaryAddons = document.getElementById('summary-addons');
+  const summaryRemoval = document.getElementById('summary-removal');
+  const summaryReferences = document.getElementById('summary-references');
+  const summaryEmail = document.getElementById('summary-email');
+  const summaryPhone = document.getElementById('summary-phone');
+  const referenceImagesInput = document.getElementById('reference-images');
+  const referenceImagesData = document.getElementById('reference-images-data');
+  const referenceList = document.getElementById('reference-list');
+  const bookingType = document.getElementById('booking-type');
+  const serviceSummary = document.getElementById('service-summary');
+  const addonsField = document.getElementById('addons');
+  const baseService = document.getElementById('base-service');
+  const removalSource = document.getElementById('removal-source');
+  const removalService = document.getElementById('removal-service');
+  const selectionButtons = document.querySelectorAll('[data-selection-field]');
+  const addonItems = document.querySelectorAll('[data-addon]');
+  const calendarMonthLabel = document.getElementById('calendar-month');
+  const calendarGrid = document.getElementById('calendar-grid');
+  const calendarPrevious = document.getElementById('calendar-prev');
+  const calendarNext = document.getElementById('calendar-next');
+  const availableDays = new Map();
+  let calendarMonth = null;
+  let firstCalendarMonth = null;
+  let lastCalendarMonth = null;
+  let serviceValidationMessage = '';
+  let preparedReferences = [];
+
+  function isBookingReady() {
+    return Boolean(bookingDate.value && bookingTime.value);
+  }
+
+  function setSelection(field, value) {
+    const input = document.getElementById(field);
+    input.value = input.value === value ? '' : value;
+    document.querySelectorAll('[data-selection-field="' + field + '"]').forEach((button) => {
+      button.classList.toggle('selected', button.dataset.value === input.value);
+    });
+    updateServiceAvailability();
+  }
+
+  function setAddonQuantity(item, quantity) {
+    const nextQuantity = Math.max(0, Math.min(10, quantity));
+    item.querySelector('.quantity-value').textContent = nextQuantity;
+    item.classList.toggle('selected', nextQuantity > 0);
+    item.querySelector('[data-quantity-action="decrease"]').disabled = nextQuantity === 0 || !baseService.value || !isBookingReady();
+    item.querySelector('[data-quantity-action="increase"]').disabled = nextQuantity === 10 || !baseService.value || !isBookingReady();
+  }
+
+  function updateServiceAvailability() {
+    const ready = isBookingReady();
+    const hasBase = Boolean(baseService.value);
+    const hasRemovalSource = Boolean(removalSource.value);
+    selectionButtons.forEach((button) => {
+      button.disabled = !ready || (
+        button.dataset.selectionField === 'removal-service' && !hasRemovalSource
+      );
+    });
+    if (!hasRemovalSource) {
+      removalService.value = '';
+      document.querySelectorAll('[data-selection-field="removal-service"]').forEach((button) => {
+        button.classList.remove('selected');
+      });
+    }
+    addonItems.forEach((item) => {
+      item.classList.toggle('disabled', !ready || !hasBase);
+      if (!hasBase) {
+        setAddonQuantity(item, 0);
+      } else {
+        const quantity = Number(item.querySelector('.quantity-value').textContent);
+        setAddonQuantity(item, quantity);
+      }
+    });
+  }
+
+  function syncServiceDetails() {
+    const selectedAddons = Array.from(addonItems)
+      .map((item) => ({
+        name: item.dataset.addon,
+        quantity: Number(item.querySelector('.quantity-value').textContent)
+      }))
+      .filter((addon) => addon.quantity > 0);
+    const hasBase = Boolean(baseService.value);
+    const hasRemovalSource = Boolean(removalSource.value);
+    const hasRemovalService = Boolean(removalService.value);
+
+    serviceValidationMessage = '';
+    if (hasRemovalSource !== hasRemovalService) {
+      serviceValidationMessage = 'Choose both the removal source and removal type.';
+      return false;
+    }
+    if (!hasBase) {
+      serviceValidationMessage = 'Please choose a base service.';
+      return false;
+    }
+    if (!hasBase && selectedAddons.length) {
+      serviceValidationMessage = 'Add-ons require a base service.';
+      return false;
+    }
+
+    const services = [];
+    if (hasBase) {
+      services.push(baseService.value);
+      services.push(...selectedAddons.map((addon) => addon.name + ' x' + addon.quantity));
+    }
+    if (hasRemovalSource) {
+      services.push('Removal — ' + removalSource.value + ' — ' + removalService.value);
+    }
+    bookingType.value = hasBase && hasRemovalSource
+      ? 'BASE_AND_REMOVAL'
+      : hasBase ? 'BASE' : 'REMOVAL';
+    addonsField.value = JSON.stringify(selectedAddons);
+    serviceSummary.value = services.join(' + ');
+    return true;
+  }
+
+  function compressReferenceImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const image = new Image();
+        image.onload = () => {
+          const maxDimension = 1600;
+          const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+          resolve({
+            name: file.name,
+            type: 'image/jpeg',
+            data: canvas.toDataURL('image/jpeg', .8)
+          });
+        };
+        image.onerror = () => reject(new Error('One of the reference images could not be read.'));
+        image.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('One of the reference images could not be read.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function prepareReferenceImages() {
+    const files = Array.from(referenceImagesInput.files || []);
+    if (files.length > 3) {
+      throw new Error('Please choose no more than three reference photos.');
+    }
+    if (files.some((file) => file.size > 5 * 1024 * 1024)) {
+      throw new Error('Each reference photo must be 5 MB or smaller.');
+    }
+    preparedReferences = await Promise.all(files.map(compressReferenceImage));
+    referenceImagesData.value = JSON.stringify(preparedReferences);
+  }
+
+  function populateBookingSummary() {
+    const selectedAddons = Array.from(addonItems)
+      .map((item) => ({
+        name: item.dataset.addon,
+        quantity: Number(item.querySelector('.quantity-value').textContent)
+      }))
+      .filter((addon) => addon.quantity > 0);
+    summaryName.textContent = document.getElementById('name').value;
+    summaryDate.textContent = formatDateLabel(bookingDate.value);
+    summaryTime.textContent = formatTimeLabel(bookingTime.value);
+    summaryBase.textContent = baseService.value || 'None';
+    summaryAddons.textContent = selectedAddons.length
+      ? selectedAddons.map((addon) => addon.name + ' x' + addon.quantity).join(', ')
+      : 'None';
+    summaryRemoval.textContent = removalSource.value
+      ? removalSource.value + ' — ' + removalService.value
+      : 'None';
+    summaryReferences.textContent = preparedReferences.length
+      ? preparedReferences.map((reference) => reference.name).join(', ')
+      : 'None';
+    summaryEmail.textContent = document.getElementById('email').value;
+    summaryPhone.textContent = document.getElementById('phone').value || 'Not provided';
+  }
+
+  function openBookingModal() {
+    populateBookingSummary();
+    bookingReview.hidden = false;
+    bookingSuccess.hidden = true;
+    bookingModalStatus.textContent = '';
+    bookingModal.hidden = false;
+    document.body.classList.add('modal-open');
+    bookingConfirm.focus();
+  }
+
+  function closeBookingModal() {
+    bookingModal.hidden = true;
+    bookingReview.hidden = false;
+    bookingSuccess.hidden = true;
+    document.body.classList.remove('modal-open');
+    bookingConfirm.disabled = false;
+    bookingConfirm.textContent = 'Confirm booking';
+    bookingModalStatus.textContent = '';
+  }
+
+  function formatDateLabel(dateValue) {
+    const date = new Date(dateValue + 'T12:00:00');
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+    });
+  }
+
+  function formatTimeLabel(timeValue) {
+    const parts = timeValue.split(':');
+    const date = new Date(2000, 0, 1, Number(parts[0]), Number(parts[1]));
+    return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+
+  function dateFromKey(dateValue) {
+    const parts = dateValue.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2], 12);
+  }
+
+  function dateKey(date) {
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  function monthKey(date) {
+    return dateKey(date).slice(0, 7);
+  }
+
+  function renderCalendar() {
+    if (!calendarMonth) {
+      return;
+    }
+
+    calendarMonthLabel.textContent = calendarMonth.toLocaleDateString(undefined, {
+      month: 'long', year: 'numeric'
+    });
+    calendarGrid.innerHTML = '';
+
+    const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1, 12);
+    const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate();
+
+    for (let blank = 0; blank < firstDay.getDay(); blank += 1) {
+      const emptyCell = document.createElement('span');
+      emptyCell.className = 'calendar-empty';
+      calendarGrid.appendChild(emptyCell);
+    }
+
+    for (let dayNumber = 1; dayNumber <= daysInMonth; dayNumber += 1) {
+      const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), dayNumber, 12);
+      const key = dateKey(date);
+      const dayData = availableDays.get(key);
+      const dayButton = document.createElement('button');
+      dayButton.type = 'button';
+      dayButton.className = 'calendar-day';
+      dayButton.textContent = dayNumber;
+      dayButton.setAttribute('aria-label', formatDateLabel(key));
+      dayButton.disabled = !dayData || !dayData.available;
+
+      if (!dayData) {
+        dayButton.title = 'Outside the booking window';
+      } else if (!dayData.available) {
+        dayButton.title = 'No appointments available';
+      } else {
+        dayButton.addEventListener('click', () => selectDate(key));
+      }
+
+      if (key === bookingDate.value) {
+        dayButton.classList.add('selected');
+        dayButton.setAttribute('aria-current', 'date');
+      }
+      calendarGrid.appendChild(dayButton);
+    }
+
+    calendarPrevious.disabled = monthKey(calendarMonth) <= firstCalendarMonth;
+    calendarNext.disabled = monthKey(calendarMonth) >= lastCalendarMonth;
+  }
+
+  function moveCalendar(monthOffset) {
+    const nextMonth = new Date(calendarMonth);
+    nextMonth.setMonth(nextMonth.getMonth() + monthOffset);
+    const nextMonthKey = monthKey(nextMonth);
+    if (nextMonthKey >= firstCalendarMonth && nextMonthKey <= lastCalendarMonth) {
+      calendarMonth = nextMonth;
+      renderCalendar();
+    }
+  }
+
+  function selectDate(dateValue) {
+    const day = availableDays.get(dateValue);
+    if (!day || !day.available) {
+      return;
+    }
+    bookingDate.value = dateValue;
+    renderCalendar();
+    renderTimes(dateValue);
+  }
+
+  function addOption(select, value, label, disabled) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    option.disabled = disabled;
+    select.appendChild(option);
+  }
+
+  function renderTimes(dateValue, resetTime = true) {
+    const day = availableDays.get(dateValue);
+    if (resetTime) {
+      bookingTime.value = '';
+    }
+    timePicker.innerHTML = '';
+
+    if (!day) {
+      const emptyState = document.createElement('span');
+      emptyState.className = 'time-empty';
+      emptyState.textContent = 'Choose a date first';
+      timePicker.appendChild(emptyState);
+      updateServiceAvailability();
+      return;
+    }
+
+    day.slots.forEach((slot) => {
+      const timeButton = document.createElement('button');
+      timeButton.type = 'button';
+      timeButton.className = 'time-option';
+      timeButton.textContent = formatTimeLabel(slot.time);
+      timeButton.disabled = !slot.available;
+      if (!slot.available) {
+        timeButton.title = 'This time is unavailable';
+      } else {
+        timeButton.addEventListener('click', () => {
+          bookingTime.value = bookingTime.value === slot.time ? '' : slot.time;
+          renderTimes(dateValue, false);
+        });
+      }
+      if (slot.time === bookingTime.value) {
+        timeButton.classList.add('selected');
+      }
+      timePicker.appendChild(timeButton);
+    });
+    updateServiceAvailability();
+  }
+
+  function loadAvailability() {
+    if (BOOKING_API_URL.includes('PASTE_SUPABASE')) {
+      return Promise.reject(new Error('Supabase booking API is not connected yet.'));
+    }
+    return fetch(BOOKING_API_URL)
+      .then((response) => response.json())
+      .then((payload) => {
+        if (!payload || !payload.ok) throw new Error('Availability could not be loaded.');
+        return payload.days || [];
+      });
+  }
+
+  calendarPrevious.addEventListener('click', () => moveCalendar(-1));
+  calendarNext.addEventListener('click', () => moveCalendar(1));
+  selectionButtons.forEach((button) => {
+    button.addEventListener('click', () => setSelection(button.dataset.selectionField, button.dataset.value));
+  });
+  addonItems.forEach((item) => {
+    item.querySelectorAll('[data-quantity-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const currentQuantity = Number(item.querySelector('.quantity-value').textContent);
+        const change = button.dataset.quantityAction === 'increase' ? 1 : -1;
+        setAddonQuantity(item, currentQuantity + change);
+      });
+    });
+  });
+  referenceImagesInput.addEventListener('change', () => {
+    preparedReferences = [];
+    referenceImagesData.value = '';
+    const files = Array.from(referenceImagesInput.files || []);
+    referenceList.textContent = files.length ? files.map((file) => file.name).join(', ') : '';
+  });
+  updateServiceAvailability();
+
+  loadAvailability()
+    .then((days) => {
+      days.forEach((day) => {
+        availableDays.set(day.date, day);
+      });
+      if (days.length) {
+        firstCalendarMonth = monthKey(dateFromKey(days[0].date));
+        lastCalendarMonth = monthKey(dateFromKey(days[days.length - 1].date));
+        calendarMonth = dateFromKey(days[0].date);
+        renderCalendar();
+      }
+      bookingStatus.textContent = '';
+    })
+    .catch((error) => {
+      calendarMonthLabel.textContent = 'Unavailable';
+      calendarGrid.innerHTML = '<span class="calendar-error">Availability is temporarily unavailable. Please try again later.</span>';
+      calendarPrevious.disabled = true;
+      calendarNext.disabled = true;
+      bookingStatus.textContent = 'Availability is temporarily unavailable. Please try again later.';
+    });
+
+  async function submitBooking() {
+    bookingConfirm.disabled = true;
+    bookingConfirm.textContent = 'Sending...';
+    bookingSubmit.disabled = true;
+    bookingModalStatus.textContent = '';
+
+    try {
+      const formData = Object.fromEntries(new FormData(bookingForm).entries());
+      formData.addons = JSON.parse(formData.addons || '[]');
+      formData.referenceImages = JSON.parse(formData.referenceImages || '[]');
+      const response = await fetch(BOOKING_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Booking request failed.');
+      bookingReview.hidden = true;
+      bookingSuccess.hidden = false;
+      bookingSubmit.disabled = false;
+      bookingSuccessClose.focus();
+    } catch (error) {
+      bookingConfirm.disabled = false;
+      bookingConfirm.textContent = 'Confirm booking';
+      bookingSubmit.disabled = false;
+      bookingModalStatus.textContent = 'Something went wrong. Please try again.';
+    }
+  }
+
+  bookingEdit.addEventListener('click', closeBookingModal);
+  bookingSuccessClose.addEventListener('click', closeBookingModal);
+  bookingConfirm.addEventListener('click', submitBooking);
+  bookingModal.addEventListener('click', (event) => {
+    if (event.target === bookingModal) {
+      closeBookingModal();
+    }
+  });
+
+  bookingForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (BOOKING_API_URL.includes('PASTE_SUPABASE')) {
+      bookingStatus.textContent = 'The booking form still needs its Supabase API URL.';
+      return;
+    }
+    if (!bookingDate.value || !bookingTime.value) {
+      bookingStatus.textContent = 'Please choose an available date and time.';
+      return;
+    }
+    if (!syncServiceDetails()) {
+      bookingStatus.textContent = serviceValidationMessage;
+      return;
+    }
+    bookingSubmit.disabled = true;
+    bookingSubmit.textContent = 'Preparing...';
+    try {
+      await prepareReferenceImages();
+    } catch (error) {
+      bookingSubmit.disabled = false;
+      bookingSubmit.textContent = 'Request booking';
+      bookingStatus.textContent = error.message;
+      return;
+    }
+    bookingSubmit.disabled = false;
+    bookingSubmit.textContent = 'Request booking';
+    bookingStatus.textContent = '';
+    openBookingModal();
+  });
+</script>
 
 </body>
 </html>

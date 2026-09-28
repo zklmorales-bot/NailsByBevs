@@ -1,21 +1,8 @@
-Nails by Bevs — static site (mockup)
-===================================
+Nails by Bevs
+=============
 
-This folder contains a static mockup site. Changes made:
+Nails by Bevs is a polished, mobile-friendly website for a private nail studio in Quezon City, Metro Manila.
 
-- The booking form in `Nails by Bevs2.html` is wired for Netlify Forms (free).
-- Added `thanks.html` which the form redirects to after submission.
+The site presents the studio's services, pricing, recent nail-art work, location, hours, and contact details in an elegant blush and oxblood visual style. Its main customer workflow is a booking request form where clients can choose a service, preferred date, preferred time, and provide their contact information.
 
-Free deployment options
-- Netlify (recommended for Netlify Forms):
-  1. Create a free Netlify account and a new site connected to this repository (drag & drop the site folder or connect to GitHub).
-  2. Deploy — Netlify will detect the form and start collecting submissions.
-  3. Test by submitting the booking form. Submissions appear in the Netlify dashboard (Forms).
-
-- GitHub Pages (no built-in form handling):
-  - You can host the static site on GitHub Pages, but you'll need an external form backend (Google Forms, Formspree, etc.) to collect bookings.
-
-If you want, I can:
-- Prepare a Git repo in this workspace and initialize Git for you.
-- Walk you through deploying to Netlify and showing where form submissions appear.
-- Swap the form to use Google Forms or Calendly embeds instead of Netlify Forms.
+The frontend is built with plain HTML, CSS, and JavaScript so it can be hosted for free as a static website. Booking requests are sent to a Supabase Edge Function and stored in a Supabase PostgreSQL database for the studio to review through a custom admin page. Reference photos are stored in private Supabase Storage. There is no payment processing; appointments are requested first and confirmed by the studio.
