@@ -37,7 +37,7 @@ function dateKey(date: Date) {
 
 function slotLabels(date: string) {
   const day = new Date(`${date}T12:00:00Z`).getUTCDay();
-  return day === 0 || day === 6 ? ['09:00', '11:00', '16:00', '18:00'] : ['09:00', '21:00'];
+  return day === 0 || day === 6 ? ['09:00', '13:00', '17:00'] : ['09:00', '21:00'];
 }
 
 async function getAvailability() {
