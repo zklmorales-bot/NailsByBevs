@@ -1,0 +1,9 @@
+{
+  "name": "nails-by-bevs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nails by Bevs static site",
+  "scripts": {
+    "gallery": "node update-gallery.mjs"
+  }
+}
