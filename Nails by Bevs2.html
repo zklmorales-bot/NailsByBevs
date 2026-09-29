@@ -206,6 +206,20 @@
   .map{background:#3a0a10;border:1px solid #6b2530;height:150px;display:flex;align-items:center;justify-content:center;color:#c98d93;font-size:.85rem;}
   .bottom{border-top:1px solid #6b2530;padding-top:24px;text-align:center;font-size:.8rem;color:#c98d93;}
   @media(max-width:720px){.contact-grid{grid-template-columns:1fr;}}
+
+  /* MOBILE REFINEMENTS */
+  @media(max-width:720px){
+    .wrap{padding:0 20px;}
+    nav .wrap{flex-direction:column;height:auto;padding:12px 0 14px;gap:10px;}
+    .navlinks{gap:20px;font-size:.88rem;flex-wrap:wrap;justify-content:center;}
+    .row2{grid-template-columns:1fr;}
+    header.hero .btn,header.hero .btn.ghost{display:block;width:100%;max-width:340px;margin:0 auto 12px;}
+    .booking-dialog{padding:22px 18px;}
+    .booking-dialog h3{font-size:1.6rem;}
+    .booking-summary{grid-template-columns:96px 1fr;gap:8px 12px;padding:14px;}
+    .booking-actions{grid-template-columns:1fr;}
+    .menu-item .name{white-space:normal;}
+  }
 </style>
 </head>
 <body>

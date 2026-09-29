@@ -59,17 +59,26 @@
 
 
     @media(max-width:720px){
-      .shell{padding:22px 16px}
-      .booking{grid-template-columns:auto 1fr}
+      .shell{padding:22px 14px 48px}
+      .panel{padding:18px 14px;margin-top:18px}
+      h1{font-size:2rem}
+      h2{font-size:1.45rem}
+      .booking{grid-template-columns:auto 1fr;gap:12px}
       .booking .actions{grid-column:1 / -1; margin-top:8px}
+      .booking .actions .button{flex:1 1 auto;min-height:44px}
       .toolbar{align-items:flex-start;flex-direction:column}
       .filter-bar{flex-direction:column;align-items:stretch}
       .search-box,.filter-select{width:100%}
       .bulk-bar{flex-direction:column;align-items:stretch}
       .block-form-grid{grid-template-columns:1fr}
       .block-btn-field .button{width:100%}
+      .block-card{flex-direction:column;align-items:flex-start}
+      .block-card .button{width:100%}
+      .modal-overlay{padding:14px}
+      .modal-dialog{padding:22px 18px}
       .modal-actions{flex-direction:column-reverse;align-items:stretch}
       .modal-actions .button{width:100%;text-align:center}
+      .status{display:inline-block;padding:3px 6px;font-size:.7rem}
     }
   </style>
 </head>
