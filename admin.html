@@ -41,6 +41,27 @@
     .block-form-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) auto;gap:14px;align-items:flex-end}
     .block-btn-field{margin-bottom:14px}
     .optional-hint{color:var(--muted);font-size:.76rem;font-weight:400}
+    /* Branded calendar picker (matches the booking page look) */
+    .admin-calendar{border:1px solid var(--line);background:var(--white);padding:14px}
+    .admin-calendar + .admin-calendar{margin-top:0}
+    .admin-cal-toolbar{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;align-items:center;gap:4px;margin-bottom:12px}
+    .admin-cal-toolbar strong{font-size:.95rem;color:var(--dark);white-space:nowrap;text-align:center;font-weight:500}
+    .admin-cal-nav{width:28px;height:28px;border:1px solid var(--line);background:var(--white);color:var(--oxblood);font-size:1rem;cursor:pointer;line-height:1}
+    .admin-cal-nav:hover:not(:disabled),.admin-cal-nav:focus-visible:not(:disabled){background:var(--oxblood);color:var(--white);outline:none}
+    .admin-cal-nav:disabled{color:#c9b9b9;cursor:not-allowed}
+    .admin-cal-weekdays,.admin-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+    .admin-cal-weekdays{color:var(--muted);font-size:.7rem;margin-bottom:4px}
+    .admin-cal-day,.admin-cal-empty{min-height:34px}
+    .admin-cal-day{border:1px solid transparent;background:var(--white);color:var(--ink);font:inherit;font-size:.83rem;cursor:pointer}
+    .admin-cal-day:hover:not(:disabled),.admin-cal-day:focus-visible:not(:disabled){border-color:var(--oxblood);outline:none}
+    .admin-cal-day.range{background:#f7e9e7;color:var(--dark)}
+    .admin-cal-day.selected{background:var(--oxblood);color:var(--white)}
+    .admin-cal-day:disabled{background:#f1eae9;color:#b9a8a8;cursor:not-allowed}
+    .admin-cal-day.selected:disabled{background:#c4aeb0;color:var(--white)}
+    .admin-cal-day.today:not(.selected){border-color:#c9a9ac}
+    .admin-cal-footnote{font-size:.72rem;color:var(--muted);margin-top:8px}
+    .admin-calendar-field label{display:block}
+    .admin-calendar-field .admin-calendar{margin-top:6px}
     .block-preview{font-size:.86rem;color:var(--oxblood);margin:6px 0 16px;min-height:1.4em;font-weight:500}
     .blocked-slots-header h3{font-size:1.3rem;margin:22px 0 12px}
     .blocks-container{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px}
@@ -151,29 +172,28 @@
           <button type="button" class="chip-btn" data-preset="today">Today</button>
           <button type="button" class="chip-btn" data-preset="tomorrow">Tomorrow</button>
           <button type="button" class="chip-btn" data-preset="this-week">This week</button>
-          <button type="button" class="chip-btn" data-preset="next-7">Next 7 days</button>
           <button type="button" class="chip-btn" data-preset="next-14">Next 14 days</button>
+          <button type="button" class="chip-btn" data-preset="next-30">Next 30 days</button>
           <button type="button" class="chip-btn" data-preset="clear">Clear dates</button>
         </div>
 
         <form id="block-form" class="block-form-grid">
-          <div class="field">
-            <label for="block-start-date">From Date</label>
-            <input id="block-start-date" type="date" required>
+          <div class="field admin-calendar-field">
+            <label>From Date</label>
+            <input id="block-start-date" type="hidden">
+            <div class="admin-calendar" id="block-start-calendar"></div>
           </div>
-          <div class="field">
-            <label for="block-end-date">To Date <span class="optional-hint">(optional range)</span></label>
-            <input id="block-end-date" type="date">
+          <div class="field admin-calendar-field">
+            <label>To Date <span class="optional-hint">(optional range)</span></label>
+            <input id="block-end-date" type="hidden">
+            <div class="admin-calendar" id="block-end-calendar"></div>
           </div>
           <div class="field">
             <label for="block-time">Time</label>
             <select id="block-time">
               <option value="ALL">All slots (Full day)</option>
-              <option value="09:00">9:00 AM</option>
-              <option value="13:00">1:00 PM</option>
-              <option value="17:00">5:00 PM</option>
-              <option value="21:00">9:00 PM</option>
             </select>
+            <div id="block-time-hint" style="font-size:.78rem;color:#8b7072;margin-top:4px;min-height:1em;"></div>
           </div>
           <div class="field">
             <label for="block-note">Reason / Note</label>
@@ -545,7 +565,7 @@
       updateBlocksBulkBar();
 
       blocksElement.innerHTML = rawBlocks.map((block) => {
-        const timeLabel = block.block_time === 'ALL' ? 'All slots (Full day)' : `${block.block_time}`;
+        const timeLabel = block.block_time === 'ALL' ? 'All slots (Full day)' : formatTimeLabel(block.block_time);
         const noteLabel = block.admin_note ? `<span class="block-note">${escapeHtml(block.admin_note)}</span>` : '';
         const isSelected = selectedBlockIds.has(block.id);
         return `
@@ -748,14 +768,91 @@
       return `${year}-${month}-${day}`;
     }
 
-    function updateBlockPreview() {
+    // Schedule mirrors the booking API: weekdays 9AM/9PM, weekends 9AM/1PM/5PM.
+    // The Time dropdown only offers slots that actually exist on the selected day(s).
+    const WEEKDAY_SLOTS = ['09:00', '21:00'];
+    const WEEKEND_SLOTS = ['09:00', '13:00', '17:00'];
+    const SLOT_LABELS = {
+      '09:00': '9:00 AM',
+      '13:00': '1:00 PM',
+      '17:00': '5:00 PM',
+      '21:00': '9:00 PM'
+    };
+
+    function formatTimeLabel(timeValue) {
+      const parts = timeValue.split(':');
+      const date = new Date(2000, 0, 1, Number(parts[0]), Number(parts[1]));
+      return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function updateBlockTimeOptions() {
       const start = blockStartDate.value;
-      const end = blockEndDate.value;
+      const previous = blockTime.value;
+
+      if (!start) {
+        blockTime.innerHTML = '<option value="ALL">All slots (Full day)</option>';
+        blockTime.value = 'ALL';
+        document.getElementById('block-time-hint').textContent = '';
+        return;
+      }
+
+      const dates = getDatesInRange(start, blockEndDate.value);
+      const valid = dates.length > 0;
+      const weekendSelected = valid && dates.some((d) => {
+        const day = new Date(d + 'T12:00:00').getDay();
+        return day === 0 || day === 6;
+      });
+      const weekdaySelected = valid && dates.some((d) => {
+        const day = new Date(d + 'T12:00:00').getDay();
+        return day >= 1 && day <= 5;
+      });
+
+      // A specific time can only be blocked when every selected date has that slot
+      let times;
+      if (weekendSelected && weekdaySelected) times = [];
+      else if (weekendSelected) times = WEEKEND_SLOTS;
+      else times = WEEKDAY_SLOTS;
+
+      blockTime.innerHTML = '<option value="ALL">All slots (Full day)</option>';
+      times.forEach((t) => {
+        const option = document.createElement('option');
+        option.value = t;
+        option.textContent = SLOT_LABELS[t];
+        blockTime.appendChild(option);
+      });
+
+      // Keep the previously chosen time when it is still valid
+      if (previous !== 'ALL' && times.includes(previous)) {
+        blockTime.value = previous;
+      } else {
+        blockTime.value = 'ALL';
+      }
+
+      const hint = document.getElementById('block-time-hint');
+      if (!valid) {
+        hint.textContent = '⚠️ End date must be on or after start date.';
+      } else if (dates.length === 1) {
+        const dayName = new Date(dates[0] + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'long' });
+        hint.textContent = `Schedule for ${dayName}: ${times.map((t) => SLOT_LABELS[t]).join(', ')}`;
+      } else if (times.length === 0) {
+        hint.textContent = 'Mixed weekdays and weekends — only “All slots” can be blocked.';
+      } else {
+        hint.textContent = `${dates.length} days selected — shared slots: ${times.map((t) => SLOT_LABELS[t]).join(', ')}`;
+      }
+    }
+
+    function updateBlockPreview() {
+      updateBlockTimeOptions();
+      if (startCalendar && endCalendar) {
+        startCalendar.syncToSelection();
+        endCalendar.syncToSelection();
+      }
+      const start = blockStartDate.value;
       if (!start) {
         blockPreview.textContent = '';
         return;
       }
-      const dates = getDatesInRange(start, end);
+      const dates = getDatesInRange(start, blockEndDate.value);
       if (dates.length === 1) {
         blockPreview.textContent = `📅 1 day selected: ${dates[0]}`;
       } else if (dates.length > 1) {
@@ -765,8 +862,127 @@
       }
     }
 
-    blockStartDate.addEventListener('input', updateBlockPreview);
-    blockEndDate.addEventListener('input', updateBlockPreview);
+    // Branded calendar pickers (same look as the booking page calendar).
+    var startCalendar = null;
+    var endCalendar = null;
+
+    function toKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function parseKey(key) {
+      const p = key.split('-').map(Number);
+      return new Date(p[0], p[1] - 1, p[2], 12);
+    }
+
+    const TODAY_KEY = toKey(new Date());
+
+    function createAdminCalendar(container, hiddenInput, opts) {
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const weekdayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+      const today = new Date();
+      const thisMonth = today.getFullYear() * 12 + today.getMonth();
+      let view = hiddenInput.value
+        ? (() => { const d = parseKey(hiddenInput.value); return { y: d.getFullYear(), m: d.getMonth() }; })()
+        : { y: today.getFullYear(), m: today.getMonth() };
+
+      function shiftMonth(delta) {
+        let m = view.m + delta;
+        let y = view.y;
+        if (m < 0) { m = 11; y -= 1; }
+        if (m > 11) { m = 0; y += 1; }
+        if (y * 12 + m < thisMonth) return; // never navigate into the past
+        view = { y, m };
+      }
+
+      function render() {
+        const firstWeekday = new Date(view.y, view.m, 1).getDay();
+        const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
+        const atCurrentMonth = view.y * 12 + view.m === thisMonth;
+
+        let html = `<div class="admin-cal-toolbar">` +
+          `<button type="button" class="admin-cal-nav" data-nav="-1" aria-label="Previous month"${atCurrentMonth ? ' disabled' : ''}>‹</button>` +
+          `<strong>${monthNames[view.m]} ${view.y}</strong>` +
+          `<button type="button" class="admin-cal-nav" data-nav="1" aria-label="Next month">›</button>` +
+          `</div>` +
+          `<div class="admin-cal-weekdays">${weekdayNames.map((d) => `<span>${d}</span>`).join('')}</div>` +
+          `<div class="admin-cal-grid">`;
+        for (let i = 0; i < firstWeekday; i += 1) html += '<span class="admin-cal-empty"></span>';
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const key = toKey(new Date(view.y, view.m, day));
+          const selected = key === hiddenInput.value;
+          const disabled = opts.isDisabled(key) && !selected;
+          const classes = ['admin-cal-day'];
+          if (selected) classes.push('selected');
+          else if (opts.isInRange(key)) classes.push('range');
+          else if (key === TODAY_KEY) classes.push('today');
+          html += `<button type="button" class="${classes.join(' ')}" data-key="${key}"${disabled ? ' disabled' : ''}>${day}</button>`;
+        }
+        html += '</div>';
+        if (opts.footnote) html += `<div class="admin-cal-footnote">${opts.footnote()}</div>`;
+        container.innerHTML = html;
+      }
+
+      container.addEventListener('click', (event) => {
+        const nav = event.target.closest('.admin-cal-nav');
+        if (nav && !nav.disabled) {
+          shiftMonth(Number(nav.dataset.nav));
+          render();
+          return;
+        }
+        const day = event.target.closest('.admin-cal-day');
+        if (!day || day.disabled) return;
+        hiddenInput.value = day.dataset.key;
+        render();
+        if (opts.onSelect) opts.onSelect(day.dataset.key);
+      });
+
+      render();
+      return {
+        render,
+        syncToSelection() {
+          if (hiddenInput.value) {
+            const d = parseKey(hiddenInput.value);
+            view = { y: d.getFullYear(), m: d.getMonth() };
+          } else {
+            view = { y: today.getFullYear(), m: today.getMonth() };
+          }
+          render();
+        }
+      };
+    }
+
+    startCalendar = createAdminCalendar(document.getElementById('block-start-calendar'), blockStartDate, {
+      isDisabled: (key) => key < TODAY_KEY,
+      isInRange: (key) => {
+        const s = blockStartDate.value;
+        const e = blockEndDate.value;
+        return Boolean(s && e && key > s && key < e);
+      },
+      footnote: () => 'Pick one day, or add an end date to block a range.',
+      onSelect: () => {
+        if (blockEndDate.value && blockEndDate.value <= blockStartDate.value) blockEndDate.value = '';
+        updateBlockPreview();
+      }
+    });
+
+    endCalendar = createAdminCalendar(document.getElementById('block-end-calendar'), blockEndDate, {
+      isDisabled: (key) => {
+        const s = blockStartDate.value;
+        return key < TODAY_KEY || (s ? key <= s : false);
+      },
+      isInRange: (key) => {
+        const s = blockStartDate.value;
+        const e = blockEndDate.value;
+        return Boolean(s && e && key > s && key < e);
+      },
+      footnote: () => (blockStartDate.value
+        ? 'Range ends on this day (inclusive).'
+        : 'Optional — pick a start date first to define a range.'),
+      onSelect: () => updateBlockPreview()
+    });
+
+    updateBlockPreview();
 
     // Preset chips
     document.querySelector('.preset-chips').addEventListener('click', (event) => {
@@ -792,16 +1008,16 @@
         sun.setDate(mon.getDate() + 6);
         blockStartDate.value = formatDateForInput(mon);
         blockEndDate.value = formatDateForInput(sun);
-      } else if (preset === 'next-7') {
-        const base = blockStartDate.value ? new Date(blockStartDate.value + 'T00:00:00') : today;
-        const end = new Date(base);
-        end.setDate(base.getDate() + 6);
-        blockStartDate.value = formatDateForInput(base);
-        blockEndDate.value = formatDateForInput(end);
       } else if (preset === 'next-14') {
         const base = blockStartDate.value ? new Date(blockStartDate.value + 'T00:00:00') : today;
         const end = new Date(base);
         end.setDate(base.getDate() + 13);
+        blockStartDate.value = formatDateForInput(base);
+        blockEndDate.value = formatDateForInput(end);
+      } else if (preset === 'next-30') {
+        const base = blockStartDate.value ? new Date(blockStartDate.value + 'T00:00:00') : today;
+        const end = new Date(base);
+        end.setDate(base.getDate() + 29);
         blockStartDate.value = formatDateForInput(base);
         blockEndDate.value = formatDateForInput(end);
       } else if (preset === 'clear') {
