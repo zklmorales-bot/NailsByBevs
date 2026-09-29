@@ -184,7 +184,13 @@
   .booking-summary dt{color:#7a6264;font-size:.78rem;}
   .booking-summary dd{color:var(--ink);font-size:.9rem;margin:0;overflow-wrap:anywhere;}
   .reference-picker{margin-top:4px;padding:14px;border:1px solid var(--line);background:var(--white);}
-  .reference-picker input[type="file"]{padding:8px 0;border:0;background:transparent;}
+  .reference-picker input[type="file"]{display:none;}
+  .file-button{display:inline-block;padding:11px 22px;border:1px solid var(--oxblood);background:var(--white);color:var(--oxblood);font-family:'Jost',sans-serif;font-size:.9rem;cursor:pointer;transition:background .2s,color .2s;}
+  .file-button:hover,.file-button:focus-visible{background:var(--oxblood);color:var(--white);outline:none;}
+  .file-name{color:#8b7072;font-size:.82rem;margin-left:10px;}
+  .file-remove{display:none;margin-left:10px;border:0;background:transparent;color:#b52b27;font-family:'Jost',sans-serif;font-size:.82rem;cursor:pointer;text-decoration:underline;padding:4px 2px;}
+  .file-remove:hover,.file-remove:focus-visible{color:var(--oxblood-dark);outline:none;}
+  .file-remove.visible{display:inline;}
   .reference-note{color:#8b7072;font-size:.78rem;margin-top:5px;}
   .reference-list{color:var(--oxblood);font-size:.82rem;margin-top:8px;}
   .booking-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -199,6 +205,10 @@
   .row2>div{min-width:0;}
   .book-note h3{font-size:1.7rem;margin-bottom:14px;}
   .book-note p{color:#5c3f42;margin-bottom:12px;font-size:.95rem;}
+  #booking-form{border:1px solid var(--line);background:var(--blush);padding:22px;margin-top:6px;}
+  #booking-form .calendar,#booking-form .reference-picker,#booking-form .selection-option,#booking-form .addon-item,#booking-form input:not([type="hidden"]){background:var(--white);}
+  #booking-form label{display:block;font-family:'Jost',sans-serif;color:var(--oxblood-dark);font-weight:500;font-size:.92rem;margin-bottom:6px;}
+  #booking-form label span{font-weight:400;color:#8b7072;font-size:.8rem;}
   @media(max-width:720px){.book{grid-template-columns:1fr;}}
 
   /* CONTACT */
@@ -216,6 +226,8 @@
   /* MOBILE REFINEMENTS */
   @media(max-width:720px){
     html{scroll-padding-top:88px;}
+    #booking-form{padding:16px 14px;}
+    #booking-form label{font-size:.88rem;}
     .wrap{padding:0 20px;}
     nav .wrap{flex-direction:column;height:auto;padding:12px 0 14px;gap:10px;}
     .navlinks{gap:20px;font-size:.88rem;flex-wrap:wrap;justify-content:center;}
@@ -425,8 +437,11 @@
         <div>
           <label for="reference-images">Reference photos <span style="color:#8b7072">(optional, up to 3)</span></label>
           <div class="reference-picker">
-            <input id="reference-images" type="file" accept="image/*" multiple>
+            <input id="reference-images" type="file" accept="image/*" multiple hidden>
             <input id="reference-images-data" name="referenceImages" type="hidden">
+            <button type="button" id="file-picker-button" class="file-button">Choose photos</button>
+            <span id="file-name" class="file-name">No photos chosen yet</span>
+            <button type="button" id="file-clear-button" class="file-remove">Remove</button>
             <p class="reference-note">Upload photos of the nail set you want. Each image should be 5 MB or smaller.</p>
             <p id="reference-list" class="reference-list" aria-live="polite"></p>
           </div>
@@ -895,11 +910,27 @@
       });
     });
   });
+  const filePickerButton = document.getElementById('file-picker-button');
+  const fileNameLabel = document.getElementById('file-name');
+  const fileClearButton = document.getElementById('file-clear-button');
+  filePickerButton.addEventListener('click', () => referenceImagesInput.click());
+  fileClearButton.addEventListener('click', () => {
+    referenceImagesInput.value = '';
+    preparedReferences = [];
+    referenceImagesData.value = '';
+    referenceList.textContent = 'Chosen photos removed.';
+    fileNameLabel.textContent = 'No photos chosen yet';
+    fileClearButton.classList.remove('visible');
+  });
   referenceImagesInput.addEventListener('change', () => {
     preparedReferences = [];
     referenceImagesData.value = '';
     const files = Array.from(referenceImagesInput.files || []);
     referenceList.textContent = files.length ? files.map((file) => file.name).join(', ') : '';
+    fileNameLabel.textContent = files.length
+      ? files.length === 1 ? '1 photo chosen' : files.length + ' photos chosen'
+      : 'No photos chosen yet';
+    fileClearButton.classList.toggle('visible', files.length > 0);
   });
   updateServiceAvailability();
 
