@@ -64,6 +64,7 @@
   header.hero .btn:hover,header.hero .btn:focus-visible{background:transparent;color:var(--white);}
   header.hero .btn.ghost{background:transparent;color:var(--white);border-color:var(--white);}
   header.hero .btn.ghost:hover{background:var(--white);color:var(--oxblood-dark);}
+  .hero-logo{width:min(430px,88vw);height:auto;display:block;margin:0 auto 6px;}
   .btn{
     display:inline-block;background:var(--oxblood);color:var(--white);
     padding:15px 36px;font-family:'Jost',sans-serif;font-size:.95rem;font-weight:400;letter-spacing:.02em;
@@ -83,7 +84,7 @@
   .section-head p.eyebrow{color:var(--oxblood);font-size:.9rem;margin-bottom:10px;}
   .section-head h2{font-size:2.3rem;}
 
-  /* SERVICES — elegant menu list, not cards */
+  /* SERVICES: elegant menu list, not cards */
   .menu{max-width:640px;margin:0 auto;}
   .menu-item{display:flex;align-items:baseline;gap:10px;padding:20px 0;border-bottom:1px solid var(--line);}
   .menu-item:last-child{border-bottom:none;}
@@ -100,7 +101,7 @@
   .menu-category .menu-item .name{white-space:normal;}
   .menu-note{text-align:center;color:#8b7072;font-size:.78rem;margin:-34px auto 30px;}
 
-  /* GALLERY — photo grid */
+  /* GALLERY: photo grid */
   .gallery{
     display:grid;grid-template-columns:repeat(4,1fr);gap:22px;max-width:900px;margin:0 auto;
   }
@@ -203,7 +204,8 @@
   footer h3{color:var(--white);font-size:1.2rem;margin-bottom:14px;}
   footer p,footer a{color:#e3bcc0;font-size:.92rem;line-height:1.8;}
   footer a:hover{color:var(--white);}
-  .map{background:#3a0a10;border:1px solid #6b2530;height:150px;display:flex;align-items:center;justify-content:center;color:#c98d93;font-size:.85rem;}
+  .map{border:1px solid #6b2530;}
+  .map iframe{display:block;width:100%;height:320px;border:0;}
   .bottom{border-top:1px solid #6b2530;padding-top:24px;text-align:center;font-size:.8rem;color:#c98d93;}
   @media(max-width:720px){.contact-grid{grid-template-columns:1fr;}}
 
@@ -238,9 +240,13 @@
 
 <header class="hero">
   <div class="wrap">
+    <svg class="hero-logo" viewBox="0 0 460 110" role="img" aria-label="Nails by Bevs">
+      <path d="M230 8 L232.5 14.5 L239 17 L232.5 19.5 L230 26 L227.5 19.5 L221 17 L227.5 14.5 Z" fill="#f4d9dd"/>
+      <text x="230" y="74" text-anchor="middle" fill="#ffffff"><tspan font-family="'Cormorant Garamond',serif" font-size="40" letter-spacing="6">NAILS BY </tspan><tspan font-family="'Parisienne',cursive" font-size="68">bevs</tspan></text>
+    </svg>
     <p class="eyebrow">Private nail studio · by appointment</p>
     <h1>Hand-painted nail art,<span class="script">made just for you</span></h1>
-    <p class="sub">From clean everyday sets to detailed hand-painted art — every appointment is one-on-one, unrushed, and tailored to what you want on your hands.</p>
+    <p class="sub">From clean everyday sets to detailed hand-painted art, every appointment is one-on-one, unrushed, and tailored to what you want on your hands.</p>
     <a href="#book" class="btn">Book an appointment</a>
     <a href="#gallery" class="btn ghost">See the work</a>
   </div>
@@ -252,7 +258,6 @@
       <p class="eyebrow">Services</p>
       <h2>What I offer</h2>
     </div>
-    <p class="menu-note">Sample pricing for the mockup — final rates may vary.</p>
     <div class="menu">
       <div class="menu-category">
         <h3>Base</h3>
@@ -478,19 +483,21 @@
     <div class="contact-grid">
       <div>
         <h3>Visit</h3>
-        <p>Nails by Bevs Studio<br>Unit 4B, Rosario Residences<br>Quezon City, Metro Manila</p>
+        <p><a href="https://www.google.com/maps/search/?api=1&query=14.7252981,121.0328509" target="_blank" rel="noopener">1 Diego Silang, Novaliches<br>Quezon City, Metro Manila 1117</a></p>
       </div>
       <div>
         <h3>Hours</h3>
-        <p>Tue – Sat: 10am – 7pm<br>Sun: 11am – 4pm<br>Closed Mondays</p>
+        <p>By appointment only<br>Mon to Fri: 9:00 AM and 9:00 PM<br>Sat and Sun: 9:00 AM, 11:00 AM, 4:00 PM and 6:00 PM</p>
       </div>
       <div>
-        <h3>Contact</h3>
-        <p>0917 123 4567<br><a href="#">hello@nailsbybevs.ph</a><br><a href="#">@nailsbybevs</a></p>
+        <h3>Say hi</h3>
+        <p><a href="tel:+639397317670">0939 731 7670</a><br><a href="mailto:nailsbybevs@gmail.com">nailsbybevs@gmail.com</a><br><a href="https://www.instagram.com/nails.by.bevs" target="_blank" rel="noopener">@nails.by.bevs</a></p>
       </div>
     </div>
-    <div class="map">map placeholder — embed Google Maps here</div>
-    <div class="bottom">Nails by Bevs — mockup site, sample content only</div>
+    <div class="map">
+      <iframe src="https://www.google.com/maps?q=14.7252981,121.0328509&output=embed" title="Nails by Bevs studio location" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="bottom">© 2026 Nails by Bevs. Hand-painted with love in Novaliches, Quezon City.</div>
   </div>
 </footer>
 
@@ -619,7 +626,7 @@
       services.push(...selectedAddons.map((addon) => addon.name + ' x' + addon.quantity));
     }
     if (hasRemovalSource) {
-      services.push('Removal — ' + removalSource.value + ' — ' + removalService.value);
+      services.push('Removal - ' + removalSource.value + ' - ' + removalService.value);
     }
     bookingType.value = hasBase && hasRemovalSource
       ? 'BASE_AND_REMOVAL'
@@ -682,7 +689,7 @@
       ? selectedAddons.map((addon) => addon.name + ' x' + addon.quantity).join(', ')
       : 'None';
     summaryRemoval.textContent = removalSource.value
-      ? removalSource.value + ' — ' + removalService.value
+      ? removalSource.value + ' - ' + removalService.value
       : 'None';
     summaryReferences.textContent = preparedReferences.length
       ? preparedReferences.map((reference) => reference.name).join(', ')
