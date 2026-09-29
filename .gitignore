@@ -1,0 +1,6 @@
+# Supabase CLI local state
+supabase/.temp/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db

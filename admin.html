@@ -8,8 +8,69 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    :root{--white:#fff;--blush:#fbf3f1;--oxblood:#7a1626;--dark:#4f0d16;--ink:#2a1416;--line:#e7d6d2;--muted:#7a6264}
-    *{box-sizing:border-box}body{margin:0;background:var(--blush);color:var(--ink);font:400 15px/1.5 Jost,sans-serif}button,input,select{font:inherit}.shell{max-width:1180px;margin:0 auto;padding:32px 24px 64px}h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:500;color:var(--dark)}h1{font-size:2.6rem;margin:0}h2{font-size:1.8rem;margin:0 0 18px}.eyebrow{color:var(--oxblood);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}.panel{background:var(--white);border:1px solid var(--line);padding:24px;margin-top:24px}.login{max-width:420px;margin:12vh auto}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.field label{color:var(--muted);font-size:.82rem}.field input,.field select{border:1px solid var(--line);padding:11px 12px;color:var(--ink);background:var(--white)}.button{border:1px solid var(--oxblood);background:var(--oxblood);color:var(--white);padding:10px 16px;cursor:pointer}.button.secondary{background:var(--white);color:var(--oxblood)}.button:disabled{opacity:.5;cursor:not-allowed}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center}.booking{border-top:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px}.booking:first-child{border-top:0}.booking h3{font-size:1.35rem;margin:0 0 5px}.booking p{margin:3px 0;color:var(--muted)}.booking strong{color:var(--ink)}.status{display:inline-block;padding:4px 8px;font-size:.75rem;letter-spacing:.05em}.status-PENDING{background:#f7ead0;color:#795313}.status-CONFIRMED{background:#e3f1e4;color:#32613a}.status-REJECTED,.status-CANCELLED{background:#f3dddd;color:#7a1626}.status-COMPLETED{background:#e4e4ed;color:#474765}.actions{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.links a{display:block;color:var(--oxblood);font-size:.85rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.message{min-height:1.5em;color:var(--oxblood);font-size:.85rem}.hidden{display:none!important}@media(max-width:720px){.shell{padding:22px 16px}.booking{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.toolbar{align-items:flex-start;flex-direction:column}}
+    :root{--white:#fff;--blush:#fbf3f1;--oxblood:#7a1626;--dark:#4f0d16;--ink:#2a1416;--line:#e7d6d2;--muted:#7a6264;--danger:#b52b27}
+    *{box-sizing:border-box}body{margin:0;background:var(--blush);color:var(--ink);font:400 15px/1.5 Jost,sans-serif}body.modal-open{overflow:hidden}button,input,select{font:inherit}.shell{max-width:1180px;margin:0 auto;padding:32px 24px 64px}h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:500;color:var(--dark)}h1{font-size:2.6rem;margin:0}h2{font-size:1.8rem;margin:0 0 4px}.eyebrow{color:var(--oxblood);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}.panel{background:var(--white);border:1px solid var(--line);padding:24px;margin-top:24px}.login{max-width:420px;margin:12vh auto}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.field label{color:var(--muted);font-size:.82rem}.field input,.field select,.field textarea{border:1px solid var(--line);padding:11px 12px;color:var(--ink);background:var(--white);font-family:inherit;resize:vertical}.button{border:1px solid var(--oxblood);background:var(--oxblood);color:var(--white);padding:10px 16px;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}.button.secondary{background:var(--white);color:var(--oxblood)}.button.danger{background:var(--white);border-color:var(--danger);color:var(--danger)}.button.danger:hover{background:var(--danger);color:var(--white)}.button.danger.filled{background:var(--danger);color:var(--white)}.button.danger.filled:hover{background:#93211e;border-color:#93211e}.button:disabled{opacity:.5;cursor:not-allowed}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .booking{border-top:1px solid var(--line);padding:18px 0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:flex-start}
+    .booking.selected{background:#fdf7f6;padding:18px 12px;border-radius:4px}
+    .booking-checkbox-col{display:flex;align-items:flex-start;padding-top:4px}
+    .booking-checkbox{width:18px;height:18px;cursor:pointer;accent-color:var(--oxblood)}
+    .booking h3{font-size:1.35rem;margin:0 0 5px}.booking p{margin:3px 0;color:var(--muted)}.booking strong{color:var(--ink)}.status{display:inline-block;padding:4px 8px;font-size:.75rem;letter-spacing:.05em}.status-PENDING{background:#f7ead0;color:#795313}.status-CONFIRMED{background:#e3f1e4;color:#32613a}.status-REJECTED,.status-CANCELLED{background:#f3dddd;color:#7a1626}.status-COMPLETED{background:#e4e4ed;color:#474765}.actions{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.links a{display:block;color:var(--oxblood);font-size:.85rem}.message{min-height:1.5em;color:var(--oxblood);font-size:.85rem}.hidden{display:none!important}.filter-bar{display:flex;gap:12px;margin:14px 0 10px;flex-wrap:wrap;align-items:center}.search-box{flex:1;min-width:260px}.search-box input{width:100%;border:1px solid var(--line);padding:10px 12px;color:var(--ink);background:var(--white)}.filter-select{border:1px solid var(--line);padding:10px 12px;color:var(--ink);background:var(--white);min-width:160px}.search-meta{color:var(--muted);font-size:.82rem;margin-bottom:14px}
+    .bulk-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fdfaf9;border:1px solid var(--line);margin:12px 0;border-radius:4px;gap:12px;flex-wrap:wrap}
+    .bulk-left{display:flex;align-items:center;gap:12px}
+    .select-all-label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:500;font-size:.88rem;color:var(--ink);user-select:none}
+    .select-all-checkbox{width:18px;height:18px;cursor:pointer;accent-color:var(--oxblood)}
+    .selected-count{font-size:.82rem;color:var(--muted)}
+    .bulk-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .booking-breakdown{background:#fdfaf9;border:1px solid var(--line);padding:10px 14px;margin:8px 0;border-radius:3px}
+    .breakdown-group{display:flex;gap:10px;margin:4px 0;align-items:baseline}
+    .breakdown-label{font-weight:500;color:var(--oxblood);min-width:76px;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
+    .breakdown-value{color:var(--ink);flex:1}
+    .addons-list{margin:0;padding-left:18px;list-style:disc}
+    .addons-list li{margin:3px 0}
+    .addon-qty{display:inline-block;background:var(--blush);border:1px solid var(--line);color:var(--dark);font-size:.75rem;font-weight:500;padding:0 6px;margin-left:6px;border-radius:10px}
+
+    /* Multi-day block availability styles */
+    .section-sub{margin:2px 0 16px;color:var(--muted);font-size:.86rem}
+    .preset-chips{display:flex;gap:8px;margin:8px 0 16px;flex-wrap:wrap;align-items:center}
+    .preset-label{font-size:.78rem;color:var(--oxblood);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+    .chip-btn{background:var(--white);border:1px solid var(--line);color:var(--muted);font-size:.8rem;padding:5px 12px;cursor:pointer;border-radius:20px;transition:all .15s ease}
+    .chip-btn:hover{border-color:var(--oxblood);color:var(--oxblood);background:var(--blush)}
+    .block-form-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) auto;gap:14px;align-items:flex-end}
+    .block-btn-field{margin-bottom:14px}
+    .optional-hint{color:var(--muted);font-size:.76rem;font-weight:400}
+    .block-preview{font-size:.86rem;color:var(--oxblood);margin:6px 0 16px;min-height:1.4em;font-weight:500}
+    .blocked-slots-header h3{font-size:1.3rem;margin:22px 0 12px}
+    .blocks-container{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px}
+    .block-card{background:#fdfaf9;border:1px solid var(--line);padding:12px 14px;border-radius:4px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .block-details strong{display:block;color:var(--ink);font-size:.92rem}
+    .block-badge{display:inline-block;background:var(--blush);border:1px solid var(--line);padding:2px 7px;border-radius:10px;font-size:.75rem;color:var(--dark);margin-top:4px}
+    .block-note{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
+    .btn-sm{padding:6px 12px;font-size:.82rem}
+    .empty-blocks{color:var(--muted);font-size:.9rem;margin:8px 0}
+
+    /* Branded Custom Modal */
+    .modal-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(42,20,22,.52);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s ease}
+    .modal-overlay.open{opacity:1;pointer-events:auto}
+    .modal-dialog{width:min(100%,460px);background:var(--white);border:1px solid var(--line);padding:30px 28px;box-shadow:0 24px 60px rgba(42,20,22,.28);transform:translateY(12px) scale(.98);transition:transform .2s ease}
+    .modal-overlay.open .modal-dialog{transform:translateY(0) scale(1)}
+    .modal-dialog h3{font-size:1.85rem;margin:4px 0 10px;color:var(--dark)}
+    .modal-dialog .modal-desc{color:var(--muted);font-size:.95rem;line-height:1.55;margin:0 0 24px}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px}
+
+
+    @media(max-width:720px){
+      .shell{padding:22px 16px}
+      .booking{grid-template-columns:auto 1fr}
+      .booking .actions{grid-column:1 / -1; margin-top:8px}
+      .toolbar{align-items:flex-start;flex-direction:column}
+      .filter-bar{flex-direction:column;align-items:stretch}
+      .search-box,.filter-select{width:100%}
+      .bulk-bar{flex-direction:column;align-items:stretch}
+      .block-form-grid{grid-template-columns:1fr}
+      .block-btn-field .button{width:100%}
+      .modal-actions{flex-direction:column-reverse;align-items:stretch}
+      .modal-actions .button{width:100%;text-align:center}
+    }
   </style>
 </head>
 <body>
@@ -24,15 +85,134 @@
     </section>
 
     <section id="dashboard" class="hidden">
-      <div class="toolbar"><div><p class="eyebrow">Private studio</p><h1>Booking control</h1></div><button id="logout" class="button secondary" type="button">Sign out</button></div>
-      <section class="panel"><div class="toolbar"><h2>Booking requests</h2><button id="refresh" class="button secondary" type="button">Refresh</button></div><div id="bookings"></div><p id="dashboard-message" class="message"></p></section>
-      <section class="panel"><h2>Block availability</h2><form id="block-form" class="grid"><div class="field"><label for="block-date">Date</label><input id="block-date" type="date" required></div><div class="field"><label for="block-time">Time</label><select id="block-time"><option value="ALL">All slots</option><option value="09:00">9:00 AM</option><option value="11:00">11:00 AM</option><option value="16:00">4:00 PM</option><option value="18:00">6:00 PM</option><option value="21:00">9:00 PM</option></select></div><div class="field"><label for="block-note">Note</label><input id="block-note" placeholder="Rest day"></div><button class="button" type="submit">Block slot</button></form><div id="blocks"></div></section>
+      <div class="toolbar"><div><p class="eyebrow">Nails by Bevs</p><h1>Booking control</h1></div><button id="logout" class="button secondary" type="button">Sign out</button></div>
+      
+      <!-- Booking Requests Panel -->
+      <section class="panel">
+        <div class="toolbar"><h2>Booking requests</h2><button id="refresh" class="button secondary" type="button">Refresh</button></div>
+        <div class="filter-bar">
+          <div class="search-box">
+            <input id="search-input" type="search" placeholder="Search by name, email, phone, date, service..." autocomplete="off">
+          </div>
+          <select id="status-filter" class="filter-select">
+            <option value="ALL">All statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+        </div>
+
+        <div class="bulk-bar">
+          <div class="bulk-left">
+            <label class="select-all-label">
+              <input type="checkbox" id="select-all-checkbox" class="select-all-checkbox">
+              <span>Select all</span>
+            </label>
+            <span id="selected-count" class="selected-count">0 selected</span>
+          </div>
+          <div id="bulk-actions" class="bulk-actions hidden">
+            <button id="bulk-confirm" class="button" type="button">Confirm selected</button>
+            <button id="bulk-reject" class="button secondary" type="button">Reject selected</button>
+            <button id="bulk-delete" class="button danger filled" type="button">Delete selected</button>
+          </div>
+        </div>
+
+        <div id="search-meta" class="search-meta"></div>
+        <div id="bookings"></div>
+        <p id="dashboard-message" class="message"></p>
+      </section>
+
+      <!-- Block Availability Panel -->
+      <section class="panel">
+        <div>
+          <h2>Block availability</h2>
+          <p class="section-sub">Block a single date or an entire date range (whole week, vacation, rest days) from client booking.</p>
+        </div>
+
+        <div class="preset-chips">
+          <span class="preset-label">Quick select:</span>
+          <button type="button" class="chip-btn" data-preset="today">Today</button>
+          <button type="button" class="chip-btn" data-preset="tomorrow">Tomorrow</button>
+          <button type="button" class="chip-btn" data-preset="this-week">This week</button>
+          <button type="button" class="chip-btn" data-preset="next-7">Next 7 days</button>
+          <button type="button" class="chip-btn" data-preset="next-14">Next 14 days</button>
+          <button type="button" class="chip-btn" data-preset="clear">Clear dates</button>
+        </div>
+
+        <form id="block-form" class="block-form-grid">
+          <div class="field">
+            <label for="block-start-date">From Date</label>
+            <input id="block-start-date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="block-end-date">To Date <span class="optional-hint">(optional range)</span></label>
+            <input id="block-end-date" type="date">
+          </div>
+          <div class="field">
+            <label for="block-time">Time</label>
+            <select id="block-time">
+              <option value="ALL">All slots (Full day)</option>
+              <option value="09:00">9:00 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="16:00">4:00 PM</option>
+              <option value="18:00">6:00 PM</option>
+              <option value="21:00">9:00 PM</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="block-note">Reason / Note</label>
+            <input id="block-note" placeholder="e.g. Rest week, Studio closed">
+          </div>
+          <div class="block-btn-field">
+            <button id="block-submit-btn" class="button" type="submit">Block date(s)</button>
+          </div>
+        </form>
+
+        <p id="block-preview" class="block-preview"></p>
+
+        <div class="blocked-slots-header">
+          <h3>Currently blocked dates & slots</h3>
+        </div>
+        <div id="blocks" class="blocks-container"></div>
+      </section>
     </section>
   </main>
+
+  <!-- Branded Confirmation Modal -->
+  <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" hidden>
+    <div class="modal-dialog">
+      <p id="confirm-modal-eyebrow" class="eyebrow">Studio action</p>
+      <h3 id="confirm-modal-title">Confirm action</h3>
+      <p id="confirm-modal-message" class="modal-desc"></p>
+      <div class="modal-actions">
+        <button id="confirm-modal-cancel" class="button secondary" type="button">Cancel</button>
+        <button id="confirm-modal-submit" class="button" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Reject Reason Modal -->
+  <div id="reject-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reject-modal-title" hidden>
+    <div class="modal-dialog">
+      <p class="eyebrow">Studio action</p>
+      <h3 id="reject-modal-title">Reject booking</h3>
+      <p class="modal-desc">Enter a reason or next steps for the client. This will be included in their rejection email.</p>
+      <div class="field" style="margin-bottom: 20px;">
+        <textarea id="reject-reason-input" rows="4" placeholder="e.g., Sorry, that slot is taken. Please try booking for next week!"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button id="reject-modal-cancel" class="button secondary" type="button">Cancel</button>
+        <button id="reject-modal-submit" class="button secondary" type="button">Send rejection</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE';
-    const SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY_HERE';
+    const SUPABASE_URL = 'https://ukfbbatyucebrtmaruba.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrZmJiYXR5dWNlYnJ0bWFydWJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTk2NjgsImV4cCI6MjEwNjE3NTY2OH0.ClCLm4otcWj-aEq7bHIyaCjXUORirKigdZy7meCPTjc';
     const ADMIN_API_URL = SUPABASE_URL + '/functions/v1/admin-api';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const loginPanel = document.getElementById('login-panel');
@@ -40,6 +220,123 @@
     const bookingsElement = document.getElementById('bookings');
     const blocksElement = document.getElementById('blocks');
     const dashboardMessage = document.getElementById('dashboard-message');
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const searchMeta = document.getElementById('search-meta');
+
+    // Bulk action elements
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const selectedCountElement = document.getElementById('selected-count');
+    const bulkActionsContainer = document.getElementById('bulk-actions');
+    const bulkConfirmBtn = document.getElementById('bulk-confirm');
+    const bulkRejectBtn = document.getElementById('bulk-reject');
+    const bulkDeleteBtn = document.getElementById('bulk-delete');
+
+    // Block form elements
+    const blockForm = document.getElementById('block-form');
+    const blockStartDate = document.getElementById('block-start-date');
+    const blockEndDate = document.getElementById('block-end-date');
+    const blockTime = document.getElementById('block-time');
+    const blockNote = document.getElementById('block-note');
+    const blockPreview = document.getElementById('block-preview');
+    const blockSubmitBtn = document.getElementById('block-submit-btn');
+
+    // Confirm Modal Elements
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmModalEyebrow = document.getElementById('confirm-modal-eyebrow');
+    const confirmModalTitle = document.getElementById('confirm-modal-title');
+    const confirmModalMessage = document.getElementById('confirm-modal-message');
+    const confirmModalCancel = document.getElementById('confirm-modal-cancel');
+    const confirmModalSubmit = document.getElementById('confirm-modal-submit');
+
+        // Reject Reason Modal Elements
+    const rejectModal = document.getElementById('reject-modal');
+    const rejectReasonInput = document.getElementById('reject-reason-input');
+    const rejectModalCancel = document.getElementById('reject-modal-cancel');
+    const rejectModalSubmit = document.getElementById('reject-modal-submit');
+    let activeRejectResolve = null;
+
+    function closeRejectModal(result = null) {
+      rejectModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+      setTimeout(() => { rejectModal.hidden = true; }, 200);
+      if (activeRejectResolve) {
+        activeRejectResolve(result);
+        activeRejectResolve = null;
+      }
+    }
+
+    function getRejectReason() {
+      return new Promise((resolve) => {
+        activeRejectResolve = resolve;
+        rejectReasonInput.value = '';
+        rejectModal.hidden = false;
+        document.body.classList.add('modal-open');
+        void rejectModal.offsetWidth;
+        rejectModal.classList.add('open');
+        rejectReasonInput.focus();
+      });
+    }
+
+    rejectModalCancel.addEventListener('click', () => closeRejectModal(null));
+    rejectModalSubmit.addEventListener('click', () => closeRejectModal(rejectReasonInput.value.trim()));
+    rejectModal.addEventListener('click', (event) => {
+      if (event.target === rejectModal) closeRejectModal(null);
+    });
+
+    let activeConfirmResolve = null;
+
+    function closeConfirmModal(result = false) {
+      confirmModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+      setTimeout(() => {
+        confirmModal.hidden = true;
+      }, 200);
+      if (activeConfirmResolve) {
+        activeConfirmResolve(result);
+        activeConfirmResolve = null;
+      }
+    }
+
+    function customConfirm({
+      eyebrow = 'Studio action',
+      title = 'Are you sure?',
+      message = '',
+      confirmText = 'Confirm',
+      confirmClass = 'button',
+      cancelText = 'Cancel'
+    } = {}) {
+      return new Promise((resolve) => {
+        activeConfirmResolve = resolve;
+        confirmModalEyebrow.textContent = eyebrow;
+        confirmModalTitle.textContent = title;
+        confirmModalMessage.textContent = message;
+        confirmModalSubmit.textContent = confirmText;
+        confirmModalSubmit.className = confirmClass;
+        confirmModalCancel.textContent = cancelText;
+
+        confirmModal.hidden = false;
+        document.body.classList.add('modal-open');
+        void confirmModal.offsetWidth;
+        confirmModal.classList.add('open');
+        confirmModalSubmit.focus();
+      });
+    }
+
+    confirmModalCancel.addEventListener('click', () => closeConfirmModal(false));
+    confirmModalSubmit.addEventListener('click', () => closeConfirmModal(true));
+    confirmModal.addEventListener('click', (event) => {
+      if (event.target === confirmModal) closeConfirmModal(false);
+    });
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !confirmModal.hidden) {
+        closeConfirmModal(false);
+      }
+    });
+
+    let rawBookings = [];
+    let visibleBookings = [];
+    const selectedBookingIds = new Set();
 
     async function adminRequest(body) {
       const { data } = await supabaseClient.auth.getSession();
@@ -54,22 +351,558 @@
     }
 
     function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[character])); }
+
+    function renderServiceBreakdown(booking) {
+      let addons = [];
+      if (Array.isArray(booking.addons)) {
+        addons = booking.addons;
+      } else if (typeof booking.addons === 'string') {
+        try { addons = JSON.parse(booking.addons); } catch (_) { addons = []; }
+      }
+
+      const hasBase = Boolean(booking.base_service);
+      const hasAddons = addons.length > 0;
+      const hasRemoval = Boolean(booking.removal_source || booking.removal_service);
+
+      if (!hasBase && !hasAddons && !hasRemoval) {
+        return `<p>${escapeHtml(booking.service_summary || '')}</p>`;
+      }
+
+      let html = '<div class="booking-breakdown">';
+
+      if (hasBase) {
+        html += `<div class="breakdown-group"><span class="breakdown-label">Base</span><span class="breakdown-value"><strong>${escapeHtml(booking.base_service)}</strong></span></div>`;
+      }
+
+      if (hasAddons) {
+        const items = addons.map((item) => {
+          const name = escapeHtml(item.name || item);
+          const qty = item.quantity ? `<span class="addon-qty">×${escapeHtml(item.quantity)}</span>` : '';
+          return `<li>${name} ${qty}</li>`;
+        }).join('');
+        html += `<div class="breakdown-group" style="align-items:flex-start"><span class="breakdown-label">Add-ons</span><div class="breakdown-value"><ul class="addons-list">${items}</ul></div></div>`;
+      }
+
+      if (hasRemoval) {
+        const removalDetails = [
+          booking.removal_service,
+          booking.removal_source ? `(${booking.removal_source})` : ''
+        ].filter(Boolean).join(' ');
+        html += `<div class="breakdown-group"><span class="breakdown-label">Removal</span><span class="breakdown-value">${escapeHtml(removalDetails || 'Yes')}</span></div>`;
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    function updateBulkBar() {
+      const visibleIds = visibleBookings.map((b) => b.id);
+      const selectedVisibleCount = visibleIds.filter((id) => selectedBookingIds.has(id)).length;
+      const totalSelected = selectedBookingIds.size;
+
+      selectedCountElement.textContent = `${totalSelected} selected`;
+
+      if (visibleIds.length > 0 && selectedVisibleCount === visibleIds.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+      } else if (selectedVisibleCount > 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+      } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      }
+
+      if (totalSelected > 0) {
+        bulkActionsContainer.classList.remove('hidden');
+        bulkConfirmBtn.textContent = `Confirm (${totalSelected})`;
+        bulkRejectBtn.textContent = `Reject (${totalSelected})`;
+        bulkDeleteBtn.textContent = `Delete (${totalSelected})`;
+      } else {
+        bulkActionsContainer.classList.add('hidden');
+      }
+    }
+
+    function filterAndRenderBookings() {
+      const query = (searchInput.value || '').toLowerCase().trim();
+      const status = statusFilter.value;
+
+      const filtered = rawBookings.filter((b) => {
+        const matchesStatus = (status === 'ALL' || b.status === status);
+        if (!matchesStatus) return false;
+        if (!query) return true;
+
+        const haystack = [
+          b.full_name,
+          b.instagram_handle,
+          b.email,
+          b.phone,
+          b.preferred_date,
+          b.preferred_time,
+          b.base_service,
+          b.removal_service,
+          b.removal_source,
+          JSON.stringify(b.addons || []),
+          b.service_summary,
+          b.status,
+          b.admin_note
+        ].join(' ').toLowerCase();
+
+        return haystack.includes(query);
+      });
+
+      visibleBookings = filtered;
+
+      // Clean up selected IDs that no longer exist in rawBookings
+      const existingIds = new Set(rawBookings.map((b) => b.id));
+      for (const id of selectedBookingIds) {
+        if (!existingIds.has(id)) selectedBookingIds.delete(id);
+      }
+
+      if (rawBookings.length > 0) {
+        searchMeta.textContent = `Showing ${filtered.length} of ${rawBookings.length} requests`;
+      } else {
+        searchMeta.textContent = '';
+      }
+
+      renderBookings(filtered);
+      updateBulkBar();
+    }
+
     function renderBookings(bookings) {
-      bookingsElement.innerHTML = bookings.length ? bookings.map((booking) => {
+      if (!bookings.length) {
+        const hasFilter = searchInput.value.trim() || statusFilter.value !== 'ALL';
+        bookingsElement.innerHTML = `<p>${hasFilter ? 'No matching booking requests found.' : 'No booking requests yet.'}</p>`;
+        return;
+      }
+
+      bookingsElement.innerHTML = bookings.map((booking) => {
+        const isSelected = selectedBookingIds.has(booking.id);
         const references = (booking.reference_urls || []).map((url, index) => `<a href="${url}" target="_blank" rel="noopener">Reference photo ${index + 1}</a>`).join('');
         const confirmButton = booking.status === 'PENDING' ? `<button class="button" data-action="confirm" data-id="${booking.id}">Confirm</button>` : '';
-        return `<article class="booking"><div><h3>${escapeHtml(booking.full_name)} <span class="status status-${booking.status}">${booking.status}</span></h3><p><strong>${escapeHtml(booking.preferred_date)} at ${escapeHtml(String(booking.preferred_time).slice(0,5))}</strong></p><p>${escapeHtml(booking.service_summary)}</p><p>${escapeHtml(booking.email)}${booking.phone ? ' · ' + escapeHtml(booking.phone) : ''}</p><p>${escapeHtml(booking.admin_note || '')}</p><div class="links">${references}</div></div><div class="actions">${confirmButton}<button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button></div></article>`;
-      }).join('') : '<p>No booking requests yet.</p>';
+        return `
+          <article class="booking ${isSelected ? 'selected' : ''}" data-booking-id="${booking.id}">
+            <div class="booking-checkbox-col">
+              <input type="checkbox" class="booking-checkbox" data-id="${booking.id}" ${isSelected ? 'checked' : ''} aria-label="Select booking">
+            </div>
+            <div>
+              <h3>${escapeHtml(booking.full_name)} <span class="status status-${booking.status}">${booking.status}</span></h3>
+              <p><strong>${escapeHtml(booking.preferred_date)} at ${escapeHtml(String(booking.preferred_time).slice(0,5))}</strong></p>
+              ${renderServiceBreakdown(booking)}
+              <p>${escapeHtml(booking.instagram_handle || 'No Instagram provided')}${booking.email ? ' · ' + escapeHtml(booking.email) : ''}${booking.phone ? ' · ' + escapeHtml(booking.phone) : ''}</p>
+              <p>${escapeHtml(booking.admin_note || '')}</p>
+              <div class="links">${references}</div>
+            </div>
+            <div class="actions">
+              ${confirmButton}
+              <button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button>
+              <button class="button danger" data-action="delete" data-id="${booking.id}" data-name="${escapeHtml(booking.full_name)}">Delete</button>
+            </div>
+          </article>
+        `;
+      }).join('');
     }
-    function renderBlocks(blocks) { blocksElement.innerHTML = blocks.map((block) => `<p>${escapeHtml(block.block_date)} · ${escapeHtml(block.block_time)} · ${escapeHtml(block.admin_note || '')} <button class="button secondary" data-unblock="${block.id}">Unblock</button></p>`).join(''); }
-    async function loadDashboard() { const result = await adminRequest(); renderBookings(result.bookings); renderBlocks(result.blocks); }
+
+    function renderBlocks(blocks) {
+      if (!blocks || !blocks.length) {
+        blocksElement.innerHTML = '<p class="empty-blocks">No blocked dates. All regular schedule slots are open.</p>';
+        return;
+      }
+
+      blocksElement.innerHTML = blocks.map((block) => {
+        const timeLabel = block.block_time === 'ALL' ? 'All slots (Full day)' : `${block.block_time}`;
+        const noteLabel = block.admin_note ? `<span class="block-note">${escapeHtml(block.admin_note)}</span>` : '';
+        return `
+          <div class="block-card">
+            <div class="block-details">
+              <strong>${escapeHtml(block.block_date)}</strong>
+              <span class="block-badge">${escapeHtml(timeLabel)}</span>
+              ${noteLabel}
+            </div>
+            <button class="button secondary btn-sm" data-unblock="${block.id}" data-desc="${escapeHtml(block.block_date)} (${escapeHtml(timeLabel)})" type="button">Unblock</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadDashboard() {
+      const result = await adminRequest();
+      rawBookings = result.bookings || [];
+      filterAndRenderBookings();
+      renderBlocks(result.blocks || []);
+    }
+
+    // Select all checkbox handler
+    selectAllCheckbox.addEventListener('change', () => {
+      const isChecked = selectAllCheckbox.checked;
+      visibleBookings.forEach((b) => {
+        if (isChecked) {
+          selectedBookingIds.add(b.id);
+        } else {
+          selectedBookingIds.delete(b.id);
+        }
+      });
+      renderBookings(visibleBookings);
+      updateBulkBar();
+    });
+
+    // Individual booking checkbox handler
+    bookingsElement.addEventListener('change', (event) => {
+      const checkbox = event.target.closest('.booking-checkbox');
+      if (!checkbox) return;
+      const id = checkbox.dataset.id;
+      const card = checkbox.closest('.booking');
+      if (checkbox.checked) {
+        selectedBookingIds.add(id);
+        card?.classList.add('selected');
+      } else {
+        selectedBookingIds.delete(id);
+        card?.classList.remove('selected');
+      }
+      updateBulkBar();
+    });
+
+    function setBulkButtonsDisabled(disabled) {
+      bulkConfirmBtn.disabled = disabled;
+      bulkRejectBtn.disabled = disabled;
+      bulkDeleteBtn.disabled = disabled;
+    }
+
+    // Bulk Confirm
+    bulkConfirmBtn.addEventListener('click', async () => {
+      const ids = Array.from(selectedBookingIds);
+      if (!ids.length) return;
+      
+      const confirmed = await customConfirm({
+        eyebrow: 'Bulk Confirmation',
+        title: 'Confirm selected bookings',
+        message: `Are you sure you want to confirm all ${ids.length} selected booking request(s)? This will mark them as CONFIRMED.`,
+        confirmText: 'Confirm bookings',
+        confirmClass: 'button'
+      });
+      if (!confirmed) return;
+
+      setBulkButtonsDisabled(true);
+      try {
+        const result = await adminRequest({ action: 'bulk_confirm', ids });
+        const confirmedCount = result.confirmedCount || 0;
+        const failedCount = (result.failed || []).length;
+        
+        let msg = failedCount > 0 
+          ? `Confirmed ${confirmedCount} booking(s). ${failedCount} could not be confirmed (slot conflict).`
+          : `Confirmed ${confirmedCount} booking(s) successfully.`;
+        
+        // Requirement 4: Check for missing emails in bulk
+        if (result.missingEmails && result.missingEmails.length > 0) {
+          msg += `\n\n⚠️ ${result.missingEmails.length} client(s) did not provide an email address. Please call them manually to confirm.`;
+          alert(msg);
+        } else {
+          dashboardMessage.textContent = msg;
+        }
+        
+        selectedBookingIds.clear();
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        setBulkButtonsDisabled(false);
+      }
+    });
+
+    // Bulk Reject
+    bulkRejectBtn.addEventListener('click', async () => {
+      const ids = Array.from(selectedBookingIds);
+      if (!ids.length) return;
+
+      const confirmed = await customConfirm({
+        eyebrow: 'Bulk Rejection',
+        title: 'Reject selected bookings',
+        message: `Are you sure you want to mark ${ids.length} selected booking request(s) as rejected?`,
+        confirmText: 'Reject bookings',
+        confirmClass: 'button secondary'
+      });
+      if (!confirmed) return;
+
+          // Requirement 3 & 4: Prompt for reason, handle reject response and missing email popup
+          const adminNote = await getRejectReason();
+          if (adminNote === null) {
+            button.disabled = false;
+            return; // User cancelled
+          }
+
+      setBulkButtonsDisabled(true);
+      try {
+        const result = await adminRequest({ action: 'bulk_status', ids, status: 'REJECTED', adminNote: adminNote });
+        
+        let msg = `Marked ${ids.length} booking(s) as rejected.`;
+        
+        // Requirement 4: Check for missing emails in bulk
+        if (result.missingEmails && result.missingEmails.length > 0) {
+          msg += `\n\n⚠️ ${result.missingEmails.length} client(s) did not provide an email address. Please call them manually to discuss next steps.`;
+          alert(msg);
+        } else {
+          dashboardMessage.textContent = msg;
+        }
+        
+        selectedBookingIds.clear();
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        setBulkButtonsDisabled(false);
+      }
+    });
+
+    // Bulk Delete
+    bulkDeleteBtn.addEventListener('click', async () => {
+      const ids = Array.from(selectedBookingIds);
+      if (!ids.length) return;
+
+      const confirmed = await customConfirm({
+        eyebrow: 'Permanent action',
+        title: 'Delete selected bookings',
+        message: `Are you sure you want to permanently delete ${ids.length} selected booking request(s)? This will also remove any uploaded reference photos and cannot be undone.`,
+        confirmText: 'Delete selected',
+        confirmClass: 'button danger filled'
+      });
+      if (!confirmed) return;
+
+      setBulkButtonsDisabled(true);
+      try {
+        await adminRequest({ action: 'bulk_delete', ids });
+        dashboardMessage.textContent = `Deleted ${ids.length} booking(s) successfully.`;
+        selectedBookingIds.clear();
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        setBulkButtonsDisabled(false);
+      }
+    });
+
+    // Date range helper
+    function getDatesInRange(startStr, endStr) {
+      if (!startStr) return [];
+      if (!endStr || endStr === startStr) return [startStr];
+      const dates = [];
+      const start = new Date(startStr + 'T00:00:00');
+      const end = new Date(endStr + 'T00:00:00');
+      if (start > end) return [];
+      const curr = new Date(start);
+      while (curr <= end) {
+        dates.push(curr.toISOString().slice(0, 10));
+        curr.setDate(curr.getDate() + 1);
+      }
+      return dates;
+    }
+
+    function formatDateForInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function updateBlockPreview() {
+      const start = blockStartDate.value;
+      const end = blockEndDate.value;
+      if (!start) {
+        blockPreview.textContent = '';
+        return;
+      }
+      const dates = getDatesInRange(start, end);
+      if (dates.length === 1) {
+        blockPreview.textContent = `📅 1 day selected: ${dates[0]}`;
+      } else if (dates.length > 1) {
+        blockPreview.textContent = `📅 ${dates.length} days selected: ${dates[0]} to ${dates[dates.length - 1]}`;
+      } else {
+        blockPreview.textContent = '⚠️ End date must be on or after start date.';
+      }
+    }
+
+    blockStartDate.addEventListener('input', updateBlockPreview);
+    blockEndDate.addEventListener('input', updateBlockPreview);
+
+    // Preset chips
+    document.querySelector('.preset-chips').addEventListener('click', (event) => {
+      const chip = event.target.closest('[data-preset]');
+      if (!chip) return;
+      const preset = chip.dataset.preset;
+      const today = new Date();
+
+      if (preset === 'today') {
+        blockStartDate.value = formatDateForInput(today);
+        blockEndDate.value = '';
+      } else if (preset === 'tomorrow') {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        blockStartDate.value = formatDateForInput(tomorrow);
+        blockEndDate.value = '';
+      } else if (preset === 'this-week') {
+        const day = today.getDay();
+        const diffToMon = day === 0 ? -6 : 1 - day;
+        const mon = new Date(today);
+        mon.setDate(today.getDate() + diffToMon);
+        const sun = new Date(mon);
+        sun.setDate(mon.getDate() + 6);
+        blockStartDate.value = formatDateForInput(mon);
+        blockEndDate.value = formatDateForInput(sun);
+      } else if (preset === 'next-7') {
+        const base = blockStartDate.value ? new Date(blockStartDate.value + 'T00:00:00') : today;
+        const end = new Date(base);
+        end.setDate(base.getDate() + 6);
+        blockStartDate.value = formatDateForInput(base);
+        blockEndDate.value = formatDateForInput(end);
+      } else if (preset === 'next-14') {
+        const base = blockStartDate.value ? new Date(blockStartDate.value + 'T00:00:00') : today;
+        const end = new Date(base);
+        end.setDate(base.getDate() + 13);
+        blockStartDate.value = formatDateForInput(base);
+        blockEndDate.value = formatDateForInput(end);
+      } else if (preset === 'clear') {
+        blockStartDate.value = '';
+        blockEndDate.value = '';
+      }
+      updateBlockPreview();
+    });
+
+    // Block Form Submission
+    blockForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const start = blockStartDate.value;
+      const end = blockEndDate.value;
+      const dates = getDatesInRange(start, end);
+
+      if (!dates.length) {
+        dashboardMessage.textContent = 'Please select a valid start and end date.';
+        return;
+      }
+
+      if (dates.length > 1) {
+        const confirmed = await customConfirm({
+          eyebrow: 'Bulk availability block',
+          title: `Block ${dates.length} days?`,
+          message: `Are you sure you want to block all ${dates.length} days from ${dates[0]} to ${dates[dates.length - 1]}? Clients will not be able to book on these dates.`,
+          confirmText: `Block ${dates.length} days`,
+          confirmClass: 'button'
+        });
+        if (!confirmed) return;
+      }
+
+      blockSubmitBtn.disabled = true;
+      blockSubmitBtn.textContent = 'Blocking...';
+      try {
+        await adminRequest({
+          action: 'block',
+          dates,
+          time: blockTime.value,
+          note: blockNote.value
+        });
+        dashboardMessage.textContent = `Successfully blocked ${dates.length} date(s).`;
+        blockForm.reset();
+        updateBlockPreview();
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        blockSubmitBtn.disabled = false;
+        blockSubmitBtn.textContent = 'Block date(s)';
+      }
+    });
+
+    // Unblock Slot
+    blocksElement.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-unblock]');
+      if (!button) return;
+      const id = button.dataset.unblock;
+      const desc = button.dataset.desc || 'this date';
+
+      const confirmed = await customConfirm({
+        eyebrow: 'Reopen availability',
+        title: 'Unblock availability',
+        message: `Are you sure you want to reopen ${desc}? Clients will be able to book this slot again.`,
+        confirmText: 'Unblock slot',
+        confirmClass: 'button secondary'
+      });
+      if (!confirmed) return;
+
+      button.disabled = true;
+      try {
+        await adminRequest({ action: 'unblock', id });
+        dashboardMessage.textContent = 'Slot unblocked successfully.';
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+        button.disabled = false;
+      }
+    });
+
+    searchInput.addEventListener('input', filterAndRenderBookings);
+    statusFilter.addEventListener('change', filterAndRenderBookings);
 
     document.getElementById('login-form').addEventListener('submit', async (event) => { event.preventDefault(); const message = document.getElementById('login-message'); try { const { error } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value }); if (error) throw error; loginPanel.classList.add('hidden'); dashboard.classList.remove('hidden'); await loadDashboard(); } catch (error) { message.textContent = error.message; } });
     document.getElementById('logout').addEventListener('click', async () => { await supabaseClient.auth.signOut(); dashboard.classList.add('hidden'); loginPanel.classList.remove('hidden'); });
     document.getElementById('refresh').addEventListener('click', () => loadDashboard().catch((error) => { dashboardMessage.textContent = error.message; }));
-    bookingsElement.addEventListener('click', async (event) => { const button = event.target.closest('[data-action]'); if (!button) return; button.disabled = true; try { await adminRequest({ action: button.dataset.action === 'confirm' ? 'confirm' : 'status', id: button.dataset.id, status: 'REJECTED' }); await loadDashboard(); } catch (error) { dashboardMessage.textContent = error.message; button.disabled = false; } });
-    blocksElement.addEventListener('click', async (event) => { const button = event.target.closest('[data-unblock]'); if (!button) return; await adminRequest({ action: 'unblock', id: button.dataset.unblock }); await loadDashboard(); });
-    document.getElementById('block-form').addEventListener('submit', async (event) => { event.preventDefault(); await adminRequest({ action: 'block', date: document.getElementById('block-date').value, time: document.getElementById('block-time').value, note: document.getElementById('block-note').value }); event.target.reset(); await loadDashboard(); });
+    
+    // Single card action listener
+    bookingsElement.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const id = button.dataset.id;
+      const name = button.dataset.name || 'this booking';
+
+      if (action === 'delete') {
+        const confirmed = await customConfirm({
+          eyebrow: 'Permanent deletion',
+          title: 'Delete booking request',
+          message: `Are you sure you want to permanently delete the booking request for "${name}"? This action cannot be undone and will delete all reference photos.`,
+          confirmText: 'Delete request',
+          confirmClass: 'button danger filled'
+        });
+        if (!confirmed) return;
+      }
+
+      button.disabled = true;
+      try {
+        if (action === 'delete') {
+          await adminRequest({ action: 'delete', id });
+          dashboardMessage.textContent = 'Booking deleted successfully.';
+        } else if (action === 'confirm') {
+          // Requirement 2 & 4: Handle confirm response and missing email popup
+          const result = await adminRequest({ action: 'confirm', id });
+          
+          if (result.emailMissing) {
+            alert("⚠️ This client did not provide an email address!\n\nPlease call them manually to confirm their appointment.");
+          } else if (result.emailSent) {
+            dashboardMessage.textContent = 'Booking confirmed and confirmation email sent to the client.';
+          } else {
+            dashboardMessage.textContent = 'Booking confirmed.';
+          }
+        } else if (action === 'reject') {
+          // Requirement 3 & 4: Prompt for reason, handle reject response and missing email popup
+          const adminNote = await getRejectReason();
+          if (adminNote === null) {
+            button.disabled = false;
+            return; // User cancelled
+          }
+          const result = await adminRequest({ action: 'status', id, status: 'REJECTED', adminNote: adminNote });
+          
+          if (result.emailMissing) {
+            alert("⚠️ This client did not provide an email address!\n\nPlease call them manually to let them know about the rejection and discuss next steps.");
+          } else if (result.emailSent) {
+            dashboardMessage.textContent = 'Booking rejected and notification email sent to the client.';
+          } else {
+            dashboardMessage.textContent = 'Booking marked as rejected.';
+          }
+        }
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+        button.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>

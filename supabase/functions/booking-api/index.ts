@@ -92,13 +92,23 @@ function validateBooking(data: Record<string, unknown>) {
   const removalService = String(data.removalService ?? '').trim();
   const addons = parseAddons(data.addons);
   const email = String(data.email ?? '').trim();
+  const phone = String(data.phone ?? '').trim();
+  const instagramHandle = String(data.instagramHandle ?? '').trim();
 
   if (!BASE_SERVICES.includes(baseService)) throw new Error('A valid base service is required');
   if (addons.length && !baseService) throw new Error('Add-ons require a base service');
   if ((removalSource || removalService) && (!REMOVAL_SOURCES.includes(removalSource) || !REMOVAL_SERVICES.includes(removalService))) {
     throw new Error('Removal source and type must be selected together');
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('A valid email is required');
+  
+  // Made email validation conditional so bookings CAN be created without an email 
+  // (which triggers your Requirement 4: popup to call them manually)
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error('A valid email is required if provided');
+  }
+  if (!instagramHandle) {
+    throw new Error('An Instagram username or link is required');
+  }
 
   const parts = [baseService, ...addons.map((addon) => `${addon.name} x${addon.quantity}`)];
   if (removalSource) parts.push(`Removal - ${removalSource} - ${removalService}`);
@@ -108,7 +118,9 @@ function validateBooking(data: Record<string, unknown>) {
     removalSource: removalSource || null,
     removalService: removalService || null,
     addons,
-    email,
+    email: email || null,
+    phone: phone || null,
+    instagramHandle,
     summary: parts.join(' + '),
     bookingType: removalSource ? 'BASE_AND_REMOVAL' : 'BASE'
   };
@@ -116,8 +128,16 @@ function validateBooking(data: Record<string, unknown>) {
 
 async function uploadReferences(encodedImages: unknown, customerName: string) {
   if (!encodedImages) return [];
-  const images = JSON.parse(String(encodedImages));
+  let images: unknown[];
+  try {
+    images = Array.isArray(encodedImages)
+      ? encodedImages
+      : (typeof encodedImages === 'string' && encodedImages.trim() ? JSON.parse(encodedImages) : []);
+  } catch {
+    throw new Error('Invalid reference images data');
+  }
   if (!Array.isArray(images) || images.length > 3) throw new Error('Up to three images are allowed');
+  if (images.length === 0) return [];
   const safeName = customerName.replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 50) || 'customer';
   const paths: string[] = [];
 
@@ -134,6 +154,50 @@ async function uploadReferences(encodedImages: unknown, customerName: string) {
     paths.push(path);
   }
   return paths;
+}
+
+async function sendNewBookingEmail(booking: any) {
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  if (!resendApiKey) {
+    console.warn('RESEND_API_KEY is not set. Skipping new booking email notification.');
+    return;
+  }
+
+  const emailBody = `
+    <h2>✨ New Booking Request</h2>
+    <p><strong>Name:</strong> ${booking.full_name}</p>
+    <p><strong>Instagram:</strong> ${booking.instagram_handle || 'Not provided'}</p>
+    <p><strong>Email:</strong> ${booking.email || 'Not provided'}</p>
+    <p><strong>Phone:</strong> ${booking.phone || 'Not provided'}</p>
+    <p><strong>Date:</strong> ${booking.preferred_date}</p>
+    <p><strong>Time:</strong> ${booking.preferred_time}</p>
+    <p><strong>Service Summary:</strong> ${booking.service_summary}</p>
+    <hr/>
+    <p>Please log in to your admin dashboard to confirm or reject this booking.</p>
+  `;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Nail Studio <onboarding@resend.dev>', // TODO: Replace with your verified Resend domain (e.g., 'Nail Studio <bookings@yourdomain.com>')
+        to: ['nailsbybevs@gmail.com'],
+        subject: `New Booking: ${booking.full_name} - ${booking.preferred_date} ${booking.preferred_time}`,
+        html: emailBody,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Resend API error:', errorData);
+    }
+  } catch (error) {
+    console.error('Failed to send new booking email:', error);
+  }
 }
 
 Deno.serve(async (request) => {
@@ -155,10 +219,13 @@ Deno.serve(async (request) => {
     if (!slot?.available) throw new Error('That time slot is no longer available');
 
     const referencePaths = await uploadReferences(data.referenceImages, String(data.name ?? 'customer'));
-    const { error } = await supabase.from('bookings').insert({
+    
+    // Added .select().single() to get the newly created booking data back for the email
+    const { data: newBooking, error } = await supabase.from('bookings').insert({
       full_name: String(data.name ?? '').trim(),
       email: service.email,
-      phone: String(data.phone ?? '').trim() || null,
+      phone: service.phone,
+      instagram_handle: service.instagramHandle,
       preferred_date: date,
       preferred_time: time,
       service_summary: service.summary,
@@ -167,9 +234,15 @@ Deno.serve(async (request) => {
       addons: service.addons,
       removal_source: service.removalSource,
       removal_service: service.removalService,
-      reference_image_paths: referencePaths
-    });
+      reference_image_paths: referencePaths,
+      status: 'PENDING'
+    }).select().single();
+    
     if (error) throw error;
+
+    // Trigger the email notification to the admin
+    await sendNewBookingEmail(newBooking);
+
     return json({ ok: true });
   } catch (error) {
     return json({ ok: false, message: error instanceof Error ? error.message : 'Request failed' }, 400);

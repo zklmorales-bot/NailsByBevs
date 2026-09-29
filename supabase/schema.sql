@@ -17,7 +17,8 @@ create table if not exists public.bookings (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   full_name text not null,
-  email text not null,
+  instagram_handle text not null,
+  email text,
   phone text,
   preferred_date date not null,
   preferred_time time not null,
@@ -32,6 +33,11 @@ create table if not exists public.bookings (
   confirmation_sent_at timestamptz,
   reference_image_paths text[] not null default '{}'
 );
+
+-- Migration for existing databases: add the Instagram handle column
+alter table public.bookings add column if not exists instagram_handle text;
+update public.bookings set instagram_handle = 'Not provided' where instagram_handle is null;
+alter table public.bookings alter column instagram_handle set not null;
 
 create table if not exists public.availability_blocks (
   id uuid primary key default gen_random_uuid(),
@@ -52,7 +58,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
+  select (auth.role() = 'service_role') or exists (
     select 1 from public.admin_users
     where user_id = (select auth.uid())
   );
@@ -113,6 +119,10 @@ create policy admins_read_bookings on public.bookings
  drop policy if exists admins_update_bookings on public.bookings;
 create policy admins_update_bookings on public.bookings
   for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+ drop policy if exists admins_delete_bookings on public.bookings;
+create policy admins_delete_bookings on public.bookings
+  for delete to authenticated using (public.is_admin());
 
  drop policy if exists admins_read_blocks on public.availability_blocks;
 create policy admins_read_blocks on public.availability_blocks

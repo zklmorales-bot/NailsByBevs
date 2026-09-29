@@ -407,14 +407,18 @@
             <p id="reference-list" class="reference-list" aria-live="polite"></p>
           </div>
         </div>
+        <div>
+          <label for="instagram-handle">Instagram <span style="color:#8b7072">(required)</span></label>
+          <input id="instagram-handle" name="instagramHandle" type="text" placeholder="@yourhandle or profile link" required>
+        </div>
         <div class="row2">
-          <div>
-            <label for="email">Email address</label>
-            <input id="email" name="email" type="email" placeholder="hello@example.com" required>
-          </div>
           <div>
             <label for="phone">Phone <span style="color:#8b7072">(optional)</span></label>
             <input id="phone" name="phone" type="tel" placeholder="0917 000 0000">
+          </div>
+          <div>
+            <label for="email">Email address <span style="color:#8b7072">(optional)</span></label>
+            <input id="email" name="email" type="email" placeholder="hello@example.com">
           </div>
         </div>
         <button id="booking-submit" type="submit" class="btn" style="border:none;cursor:pointer;margin-top:6px;">Request booking</button>
@@ -437,6 +441,7 @@
         <dt>Add-ons</dt><dd id="summary-addons"></dd>
         <dt>Removal</dt><dd id="summary-removal"></dd>
         <dt>Reference photos</dt><dd id="summary-references"></dd>
+        <dt>Instagram</dt><dd id="summary-instagram"></dd>
         <dt>Email</dt><dd id="summary-email"></dd>
         <dt>Phone</dt><dd id="summary-phone"></dd>
       </dl>
@@ -476,7 +481,7 @@
 </footer>
 
 <script>
-  const BOOKING_API_URL = 'PASTE_SUPABASE_BOOKING_API_URL_HERE';
+  const BOOKING_API_URL = 'https://ukfbbatyucebrtmaruba.supabase.co/functions/v1/booking-api';
   const bookingForm = document.getElementById('booking-form');
   const bookingDate = document.getElementById('date');
   const bookingTime = document.getElementById('time');
@@ -499,6 +504,7 @@
   const summaryReferences = document.getElementById('summary-references');
   const summaryEmail = document.getElementById('summary-email');
   const summaryPhone = document.getElementById('summary-phone');
+  const summaryInstagram = document.getElementById('summary-instagram');
   const referenceImagesInput = document.getElementById('reference-images');
   const referenceImagesData = document.getElementById('reference-images-data');
   const referenceList = document.getElementById('reference-list');
@@ -667,8 +673,9 @@
     summaryReferences.textContent = preparedReferences.length
       ? preparedReferences.map((reference) => reference.name).join(', ')
       : 'None';
-    summaryEmail.textContent = document.getElementById('email').value;
     summaryPhone.textContent = document.getElementById('phone').value || 'Not provided';
+    summaryEmail.textContent = document.getElementById('email').value || 'Not provided';
+    summaryInstagram.textContent = document.getElementById('instagram-handle').value;
   }
 
   function openBookingModal() {
