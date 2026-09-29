@@ -45,6 +45,9 @@
     .blocked-slots-header h3{font-size:1.3rem;margin:22px 0 12px}
     .blocks-container{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:12px}
     .block-card{background:#fdfaf9;border:1px solid var(--line);padding:12px 14px;border-radius:4px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .block-card.selected{background:#f3e2e2;border-color:var(--oxblood)}
+    .block-check{display:flex;align-items:center;flex:0 0 auto}
+    .block-checkbox{width:18px;height:18px;cursor:pointer;accent-color:var(--oxblood)}
     .block-details strong{display:block;color:var(--ink);font-size:.92rem}
     .block-badge{display:inline-block;background:var(--blush);border:1px solid var(--line);padding:2px 7px;border-radius:10px;font-size:.75rem;color:var(--dark);margin-top:4px}
     .block-note{display:block;font-size:.8rem;color:var(--muted);margin-top:2px}
@@ -184,8 +187,17 @@
 
         <p id="block-preview" class="block-preview"></p>
 
-        <div class="blocked-slots-header">
+        <div class="blocked-slots-header toolbar">
           <h3>Currently blocked dates & slots</h3>
+        </div>
+        <div id="blocks-bulk-bar" class="bulk-bar hidden">
+          <div class="bulk-left">
+            <label class="select-all-label"><input type="checkbox" id="select-all-blocks" class="select-all-checkbox"> Select all</label>
+            <span id="blocks-selected-count" class="selected-count"></span>
+          </div>
+          <div class="bulk-actions">
+            <button id="bulk-unblock" class="button secondary" type="button">Unblock selected</button>
+          </div>
         </div>
         <div id="blocks" class="blocks-container"></div>
       </section>
@@ -349,6 +361,8 @@
     let rawBookings = [];
     let visibleBookings = [];
     const selectedBookingIds = new Set();
+    let rawBlocks = [];
+    const selectedBlockIds = new Set();
 
     async function adminRequest(body) {
       const { data } = await supabaseClient.auth.getSession();
@@ -516,16 +530,28 @@
     }
 
     function renderBlocks(blocks) {
-      if (!blocks || !blocks.length) {
+      rawBlocks = blocks || [];
+      const existingIds = new Set(rawBlocks.map((b) => b.id));
+      for (const id of selectedBlockIds) {
+        if (!existingIds.has(id)) selectedBlockIds.delete(id);
+      }
+
+      const bulkBar = document.getElementById('blocks-bulk-bar');
+      if (!rawBlocks.length) {
+        bulkBar.classList.add('hidden');
         blocksElement.innerHTML = '<p class="empty-blocks">No blocked dates. All regular schedule slots are open.</p>';
         return;
       }
+      bulkBar.classList.remove('hidden');
+      updateBlocksBulkBar();
 
-      blocksElement.innerHTML = blocks.map((block) => {
+      blocksElement.innerHTML = rawBlocks.map((block) => {
         const timeLabel = block.block_time === 'ALL' ? 'All slots (Full day)' : `${block.block_time}`;
         const noteLabel = block.admin_note ? `<span class="block-note">${escapeHtml(block.admin_note)}</span>` : '';
+        const isSelected = selectedBlockIds.has(block.id);
         return `
-          <div class="block-card">
+          <div class="block-card ${isSelected ? 'selected' : ''}">
+            <label class="block-check"><input type="checkbox" class="block-checkbox" data-id="${block.id}" ${isSelected ? 'checked' : ''} aria-label="Select block"></label>
             <div class="block-details">
               <strong>${escapeHtml(block.block_date)}</strong>
               <span class="block-badge">${escapeHtml(timeLabel)}</span>
@@ -535,6 +561,14 @@
           </div>
         `;
       }).join('');
+    }
+
+    function updateBlocksBulkBar() {
+      const count = selectedBlockIds.size;
+      document.getElementById('blocks-selected-count').textContent = count ? `${count} selected` : '';
+      document.getElementById('bulk-unblock').disabled = count === 0;
+      const allChecked = rawBlocks.length > 0 && count === rawBlocks.length;
+      document.getElementById('select-all-blocks').checked = allChecked;
     }
 
     async function loadDashboard() {
@@ -846,6 +880,52 @@
       } catch (error) {
         dashboardMessage.textContent = error.message;
         button.disabled = false;
+      }
+    });
+
+    // Block selection handlers
+    blocksElement.addEventListener('change', (event) => {
+      const checkbox = event.target.closest('.block-checkbox');
+      if (!checkbox) return;
+      if (checkbox.checked) selectedBlockIds.add(checkbox.dataset.id);
+      else selectedBlockIds.delete(checkbox.dataset.id);
+      updateBlocksBulkBar();
+      const card = checkbox.closest('.block-card');
+      if (card) card.classList.toggle('selected', checkbox.checked);
+    });
+
+    document.getElementById('select-all-blocks').addEventListener('change', (event) => {
+      const checked = event.target.checked;
+      selectedBlockIds.clear();
+      if (checked) rawBlocks.forEach((b) => selectedBlockIds.add(b.id));
+      renderBlocks(rawBlocks);
+    });
+
+    document.getElementById('bulk-unblock').addEventListener('click', async () => {
+      const count = selectedBlockIds.size;
+      if (!count) return;
+      const confirmed = await customConfirm({
+        eyebrow: 'Reopen availability',
+        title: 'Unblock multiple slots',
+        message: `Are you sure you want to reopen ${count} blocked ${count === 1 ? 'slot' : 'slots'}? Clients will be able to book them again.`,
+        confirmText: 'Unblock all selected',
+        confirmClass: 'button secondary'
+      });
+      if (!confirmed) return;
+
+      const bulkBtn = document.getElementById('bulk-unblock');
+      bulkBtn.disabled = true;
+      bulkBtn.textContent = 'Unblocking...';
+      try {
+        await adminRequest({ action: 'unblock', ids: Array.from(selectedBlockIds) });
+        dashboardMessage.textContent = `${count} ${count === 1 ? 'slot' : 'slots'} unblocked successfully.`;
+        selectedBlockIds.clear();
+        await loadDashboard();
+      } catch (error) {
+        dashboardMessage.textContent = error.message;
+      } finally {
+        bulkBtn.disabled = false;
+        bulkBtn.textContent = 'Unblock selected';
       }
     });
 
