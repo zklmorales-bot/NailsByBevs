@@ -32,4 +32,4 @@ ADMIN_EMAIL
 EMAIL_FROM
 ```
 
-The service-role key must only exist in Supabase function secrets. It must never be committed or placed in `Nails by Bevs2.html` or `admin.html`.
+The service-role key must only exist in Supabase function secrets. It must never be committed or placed in `Nails-by-Bevs.html` or `admin.html`.

@@ -6,7 +6,7 @@ The booking system uses Supabase for the database, API, private reference-photo 
 System overview
 ---------------
 
-- `Nails by Bevs2.html` is the public booking website.
+- `Nails-by-Bevs.html` is the public booking website.
 - `admin.html` is the private custom admin page.
 - Supabase PostgreSQL stores bookings and availability blocks.
 - Supabase Edge Functions provide the public booking API and protected admin API.
@@ -35,7 +35,7 @@ values ('AUTH_USER_UUID', 'admin@example.com');
    - `RESEND_API_KEY`
    - `ADMIN_EMAIL`
    - `EMAIL_FROM`
-1. Replace the Supabase placeholders in `Nails by Bevs2.html` and `admin.html`.
+1. Replace the Supabase placeholders in `Nails-by-Bevs.html` and `admin.html`.
 1. Deploy the updated static files to GitHub Pages or another free static host.
 
 Never put the Supabase service-role key in either HTML file. Only the public URL and anonymous key belong in frontend files.
@@ -96,7 +96,7 @@ Calendar does not load
 ----------------------
 
 - Confirm the booking Edge Function is deployed.
-- Confirm `BOOKING_API_URL` in `Nails by Bevs2.html` points to the deployed function.
+- Confirm `BOOKING_API_URL` in `Nails-by-Bevs.html` points to the deployed function.
 - Check the Supabase Edge Function logs.
 - Confirm the SQL schema has been applied.
 

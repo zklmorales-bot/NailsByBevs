@@ -2,7 +2,7 @@
 /**
  * Scans images/gallery/*.jpg|jpeg|png|webp (sorted by filename) and regenerates
  * the "Recent sets" section between the <!-- GALLERY:START --> and
- * <!-- GALLERY:END --> markers in Nails by Bevs2.html.
+ * <!-- GALLERY:END --> markers in Nails-by-Bevs.html.
  *
  * Usage:  npm run gallery   (or:  node update-gallery.mjs)
  *
@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const htmlPath = 'Nails by Bevs2.html';
+const htmlPath = 'Nails-by-Bevs.html';
 const galleryDir = 'images/gallery';
 const exts = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 

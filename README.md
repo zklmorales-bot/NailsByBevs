@@ -20,7 +20,7 @@ The gallery is driven by the `images/gallery/` folder:
 
    (or `node update-gallery.mjs`)
 
-3. Done — `Nails by Bevs2.html` is regenerated to show exactly what is in the folder, sorted by filename.
+3. Done — `Nails-by-Bevs.html` is regenerated to show exactly what is in the folder, sorted by filename.
 
 The page handles the rest automatically: photos display in a 3×2 grid (2 columns on mobile), show 6 per page with subtle dot navigation when there are more than 6, and open in a full-screen lightbox when clicked (close with ×, Escape, or a click on the background; browse with the ‹ › arrows or keyboard arrow keys).
 
