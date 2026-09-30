@@ -4,3 +4,6 @@ supabase/.temp/
 # OS / editor noise
 .DS_Store
 Thumbs.db
+
+# Private: admin dashboard QR (never publish)
+qr/admin-qr-*.png
