@@ -68,6 +68,12 @@
     timers = [];
   }
 
+  function markHiddenPagesRevealed() {
+    photos.forEach(function (photo) {
+      photo.classList.remove('reveal-pending', 'reveal-in');
+    });
+  }
+
   /* ---------- Pagination ---------- */
 
   function showPage(page, animate) {
@@ -81,6 +87,7 @@
     if (!animate || reduceMotion || pageCount <= 1) {
       currentPage = target;
       applyVisibility(target);
+      markHiddenPagesRevealed();
       return;
     }
 
@@ -104,6 +111,7 @@
       // Swap pages: hide old, reveal new with slide-in + stagger
       outgoing.forEach(function (photo) { photo.classList.remove('photo-out'); });
       applyVisibility(target);
+      markHiddenPagesRevealed();
       gallery.classList.add('is-animating');
       void gallery.offsetWidth; // restart the CSS animation reliably
 
@@ -150,6 +158,35 @@
 
   buildDots();
   applyVisibility(0);
+
+  /* ---------- Scroll reveal (retriggers) ---------- */
+
+  // Photos rise+fade in each time they enter the viewport, and reset instantly
+  // once they fully leave it, so the entrance replays on every visit. This stays
+  // cheap because IntersectionObserver only fires at threshold crossings (it is
+  // not a scroll-event handler), and resetting is a class swap with no layout
+  // work. Stagger is the photo's row position, so delays never grow.
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var photo = entry.target;
+        if (entry.intersectionRatio >= 0.12) {
+          photo.style.setProperty('--reveal-order', String(photos.indexOf(photo) % PER_PAGE));
+          photo.classList.remove('reveal-pending');
+          photo.classList.add('reveal-in');
+        } else if (entry.intersectionRatio === 0 && !photo.hidden) {
+          // Fully out of view: reset instantly (reveal-pending has no transition)
+          photo.classList.remove('reveal-in');
+          photo.classList.add('reveal-pending');
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: [0, 0.12] });
+
+    photos.forEach(function (photo) {
+      photo.classList.add('reveal-pending');
+      revealObserver.observe(photo);
+    });
+  }
 
   /* ---------- Swipe navigation (touch) ---------- */
 
