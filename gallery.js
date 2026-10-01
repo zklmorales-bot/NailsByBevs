@@ -280,6 +280,12 @@
     if (lightboxIndex === -1 || photos.length < 2) return;
     lightboxIndex = (lightboxIndex + delta + photos.length) % photos.length;
     renderLightbox(lightboxIndex);
+    // Slide the new photo in from the direction it came from
+    if (!reduceMotion && lightboxImg) {
+      lightboxImg.classList.remove('slide-next', 'slide-prev');
+      void lightboxImg.offsetWidth; // restart the animation reliably
+      lightboxImg.classList.add(delta > 0 ? 'slide-next' : 'slide-prev');
+    }
   }
 
   photos.forEach(function (photo) {
