@@ -313,18 +313,23 @@
   .policy-agree input{width:auto;margin:3px 0 0;accent-color:var(--oxblood);cursor:pointer;}
   .policy-agree a{color:var(--oxblood);text-decoration:underline;}
   #policy-link{display:inline-block;margin:0 0 12px;font-size:.82rem;color:var(--oxblood);text-decoration:underline;}
-  .policies{margin:26px 0 6px;}
-  .policies h3{margin-bottom:12px;}
-  .policies-subhead{margin:26px 0 12px;}
-  .reminders{list-style:none;padding:0;margin:0;}
-  .reminders li{position:relative;padding:0 0 12px 24px;font-size:.9rem;}
-  .reminders li::before{content:"✦";position:absolute;left:2px;top:0;color:var(--oxblood);font-size:.75rem;line-height:1.75;}
-  .policies details{border:1px solid var(--line);background:var(--white);margin-bottom:10px;overflow:hidden;}
-  .policies summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;font-family:'Jost',sans-serif;color:var(--oxblood-dark);list-style:none;}
+  .policies{margin:8px 0 0;scroll-margin-top:84px;}
+  @media(max-width:720px){.policies{scroll-margin-top:112px;}}
+  .policies h3{font-family:'Jost',sans-serif;font-weight:500;font-size:.92rem;margin-bottom:2px;color:var(--oxblood-dark);}
+  .policies details{border-bottom:1px solid var(--line);overflow:hidden;}
+  .policies details:first-of-type{border-top:1px solid var(--line);}
+  .policies summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 2px;cursor:pointer;font-family:'Jost',sans-serif;color:#77595c;font-size:.88rem;list-style:none;transition:color .2s;}
+  .policies summary:hover{color:var(--oxblood-dark);}
   .policies summary::-webkit-details-marker{display:none;}
-  .policies summary::after{content:"+";font-size:1.25rem;color:var(--oxblood);line-height:1;}
+  .policies summary::after{content:"+";font-size:.95rem;color:#a98f92;line-height:1;}
+  .policies details[open] summary{color:var(--oxblood-dark);}
   .policies details[open] summary::after{content:"−";}
-  .policies details p{padding:0 16px 14px;font-size:.9rem;}
+  .policies details p{padding:0 2px 12px;font-size:.85rem;color:#5c3f42;}
+  .reminders{max-width:760px;margin:26px auto 0;}
+  .reminders h3{font-family:'Jost',sans-serif;font-weight:500;font-size:.92rem;color:var(--oxblood-dark);margin-bottom:10px;}
+  .reminders ul{list-style:none;padding:0;margin:0;}
+  .reminders li{position:relative;padding:0 0 10px 22px;font-size:.88rem;color:#5c3f42;}
+  .reminders li::before{content:"✦";position:absolute;left:2px;top:0;color:var(--oxblood);font-size:.7rem;line-height:1.9;}
   .policy-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease;}
   .policies details[open] .policy-body{grid-template-rows:1fr;}
   .policy-body>div{overflow:hidden;}
@@ -601,11 +606,11 @@
           <h3>Studio policies</h3>
           <details>
             <summary>Deposit</summary>
-            <div class="policy-body"><div><p>Your slot is secured with a ₱50 deposit, which is non-refundable.</p></div></div>
+            <div class="policy-body"><div><p>Your slot is secured with a ₱50 deposit, which is non-refundable but will be deducted from your final bill.</p></div></div>
           </details>
           <details>
             <summary>Cancellations</summary>
-            <div class="policy-body"><div><p>Once you cancel, the deposit is forfeited, so please only book a date you're sure about. Need to move your appointment? Message me and I'll do my best to find a new slot for you.</p></div></div>
+            <div class="policy-body"><div><p>Once you cancel, the deposit is forfeited, so please only book a date you're sure about.</p></div></div>
           </details>
           <details>
             <summary>Payment</summary>
@@ -615,16 +620,19 @@
             <summary>Late arrival</summary>
             <div class="policy-body"><div><p>Let me know as early as you can if you're running late. Arriving more than 15 minutes late adds a ₱50 late fee, and 30 minutes or more automatically cancels your appointment.</p></div></div>
           </details>
-          <h3 class="policies-subhead">Important reminders</h3>
-          <ul class="reminders">
-            <li>This is a homebased studio, so expect a cozy home setup rather than a full salon.</li>
-            <li>A full set can take 2 to 3 hours. Please use the bathroom before we start.</li>
-            <li>Guests can't join your appointment, so come solo and enjoy the quiet.</li>
-          </ul>
         </div>
         <button id="booking-submit" type="submit" class="btn" style="border:none;cursor:pointer;margin-top:6px;">Request booking</button>
         <p id="booking-status" role="status" aria-live="polite"></p>
       </form>
+    </div>
+
+    <div class="reminders">
+      <h3>Important reminders</h3>
+      <ul>
+        <li>This is a homebased studio, so expect a cozy home setup rather than a full salon.</li>
+        <li>A full set can take 2 to 3 hours. Please use the bathroom before we start.</li>
+        <li>Guests can't join your appointment, so come solo and enjoy the quiet.</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -1195,10 +1203,27 @@
   });
 
   // "Read the policies" closes the modal and jumps to the policies accordion
-  policyLink.addEventListener('click', function () {
+  policyLink.addEventListener('click', function (event) {
+    event.preventDefault();
     closeBookingModal();
     var firstPolicy = document.querySelector('.policies details');
-    if (firstPolicy && !firstPolicy.open) firstPolicy.open = true;
+    if (firstPolicy) {
+      // Cancel any in-flight close animation so the panel can't end up stuck empty
+      if (firstPolicy.closingTimer) {
+        clearTimeout(firstPolicy.closingTimer);
+        firstPolicy.closingTimer = null;
+        firstPolicy.querySelector('.policy-body').style.gridTemplateRows = '';
+      }
+      firstPolicy.open = true;
+    }
+    // Scroll manually: the body scroll lock releasing in the same frame can
+    // abort the browser's native anchor jump, so do it after the modal is gone
+    requestAnimationFrame(function () {
+      document.getElementById('policies').scrollIntoView({
+        behavior: reduceMotionQuery.matches ? 'auto' : 'smooth',
+        block: 'start'
+      });
+    });
   });
 
   // Smooth open/close for the policy accordion (the native toggle has no animation)
@@ -1207,20 +1232,42 @@
     summary.addEventListener('click', function (event) {
       event.preventDefault();
       var details = summary.parentElement;
+      var body = details.querySelector('.policy-body');
       var opening = !details.open;
-      if (reduceMotionQuery.matches || opening) {
+      if (reduceMotionQuery.matches) {
         details.open = opening;
         return;
       }
+      if (details.closingTimer) {
+        clearTimeout(details.closingTimer);
+        details.closingTimer = null;
+      }
+      if (opening) {
+        // Render the panel collapsed first, then let the transition expand it
+        details.open = true;
+        body.style.gridTemplateRows = '0fr';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            body.style.gridTemplateRows = '1fr';
+          });
+        });
+        return;
+      }
       // Closing: animate the panel shut first, then collapse the details element
-      var body = details.querySelector('.policy-body');
       body.style.gridTemplateRows = '0fr';
-      var onEnd = function () {
+      var settled = false;
+      var finishClose = function () {
+        if (settled) return;
+        settled = true;
         body.removeEventListener('transitionend', onEnd);
         details.open = false;
         body.style.gridTemplateRows = '';
       };
+      var onEnd = function (event) {
+        if (event.target === body) finishClose();
+      };
       body.addEventListener('transitionend', onEnd);
+      details.closingTimer = setTimeout(finishClose, 350);
     });
   });
   bookingModal.addEventListener('click', (event) => {
