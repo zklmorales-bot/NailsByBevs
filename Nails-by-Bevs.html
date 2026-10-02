@@ -205,6 +205,8 @@
   }
   .lightbox[hidden]{display:none;}
   @keyframes lightbox-in{from{opacity:0;}to{opacity:1;}}
+  .lightbox.is-closing{animation:lightbox-out .18s ease-in forwards;}
+  @keyframes lightbox-out{from{opacity:1;}to{opacity:0;}}
   .lightbox img.slide-next{animation:lb-slide-next .3s cubic-bezier(.25,.6,.3,1);}
   .lightbox img.slide-prev{animation:lb-slide-prev .3s cubic-bezier(.25,.6,.3,1);}
   @keyframes lb-slide-next{from{opacity:0;transform:translateX(32px);}to{opacity:1;transform:none;}}
@@ -243,7 +245,9 @@
   }
   input:focus,select:focus{outline:2px solid var(--oxblood);outline-offset:1px;}
   select:disabled{color:#9e898b;background:#f3eceb;cursor:not-allowed;}
-  #booking-status{min-height:1.6em;color:var(--oxblood);font-size:.85rem;}
+  #booking-status{margin-top:10px;padding:10px 14px;border:1px solid var(--oxblood);background:rgba(122,22,38,.07);color:var(--oxblood-dark);font-size:.88rem;}
+  #booking-status:empty{display:none;}
+  .field-error{outline:2px solid var(--oxblood);outline-offset:2px;}
   .calendar{width:100%;min-width:0;border:1px solid var(--line);background:var(--white);padding:14px;}
   .calendar-toolbar{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;align-items:center;gap:4px;margin-bottom:12px;}
   .calendar-toolbar strong{font-family:'Jost',sans-serif;font-size:.95rem;color:var(--oxblood-dark);white-space:nowrap;text-align:center;}
@@ -497,13 +501,13 @@
         <p>Appointments are limited to one client at a time, so booking ahead is the best way to get the date and design you want.</p>
         <p>You'll get a confirmation message once your request is reviewed.</p>
       </div>
-      <form id="booking-form" name="booking">
+      <form id="booking-form" name="booking" novalidate>
         <p style="display:none">
           <label>Don't fill this out if you're human: <input name="bot-field"></label>
         </p>
         <div>
           <label for="name">Full name</label>
-          <input id="name" name="name" type="text" placeholder="Juana dela Cruz" autocomplete="name" required>
+          <input id="name" name="name" type="text" placeholder="Juana dela Cruz" autocomplete="name" aria-required="true">
         </div>
         <div class="row2">
           <div>
@@ -523,7 +527,7 @@
           </div>
           <div>
             <label for="time">Preferred time</label>
-            <input id="time" name="time" type="hidden" required>
+            <input id="time" name="time" type="hidden">
             <div id="time-picker" class="time-picker" role="group" aria-label="Choose an appointment time">
               <span class="time-empty">Choose a date first</span>
             </div>
@@ -590,7 +594,7 @@
         </div>
         <div>
           <label for="instagram-handle">Instagram <span style="color:#8b7072">(required)</span></label>
-          <input id="instagram-handle" name="instagramHandle" type="text" placeholder="@yourhandle or profile link" autocomplete="username" required>
+          <input id="instagram-handle" name="instagramHandle" type="text" placeholder="@yourhandle or profile link" autocomplete="username" aria-required="true">
         </div>
         <div class="row2">
           <div>
@@ -728,6 +732,10 @@
   const bookingDate = document.getElementById('date');
   const bookingTime = document.getElementById('time');
   const timePicker = document.getElementById('time-picker');
+  const bookingName = document.getElementById('name');
+  const bookingEmail = document.getElementById('email');
+  const bookingInstagram = document.getElementById('instagram-handle');
+  const baseServicePicker = document.getElementById('base-service-picker');
   const bookingSubmit = document.getElementById('booking-submit');
   const bookingStatus = document.getElementById('booking-status');
   const bookingModal = document.getElementById('booking-modal');
@@ -1276,14 +1284,40 @@
     }
   });
 
+  // Flag a missing field and clear the highlight as soon as the user touches it
+  function flagField(el) {
+    if (!el) return;
+    el.classList.add('field-error');
+    var clear = function () { el.classList.remove('field-error'); };
+    el.addEventListener('input', clear, { once: true });
+    el.addEventListener('change', clear, { once: true });
+    el.addEventListener('click', clear, { once: true });
+  }
+
   bookingForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (BOOKING_API_URL.includes('PASTE_SUPABASE')) {
       bookingStatus.textContent = 'The booking form still needs its Supabase API URL.';
       return;
     }
-    if (!bookingDate.value || !bookingTime.value) {
-      bookingStatus.textContent = 'Please choose an available date and time.';
+    // Collect everything missing in one pass so nothing is revealed piecemeal
+    var missing = [];
+    var flagged = [];
+    if (!bookingName.value.trim()) { missing.push('your name'); flagged.push(bookingName); }
+    if (!bookingDate.value) { missing.push('an appointment date'); flagged.push(calendarGrid.closest('.calendar')); }
+    if (!bookingTime.value) { missing.push('a time slot'); flagged.push(timePicker); }
+    if (!baseService.value) { missing.push('a base service'); flagged.push(baseServicePicker); }
+    if (!bookingInstagram.value.trim()) { missing.push('your Instagram handle'); flagged.push(bookingInstagram); }
+    if (bookingEmail.value.trim() && !/^\S+@\S+\.\S+$/.test(bookingEmail.value.trim())) {
+      missing.push('a valid email address (or leave it blank)');
+      flagged.push(bookingEmail);
+    }
+    if (missing.length) {
+      bookingStatus.textContent = 'Please complete: ' + missing.join(', ') + '.';
+      flagged.forEach(flagField);
+      var firstMissing = flagged[0];
+      firstMissing.scrollIntoView({ behavior: reduceMotionQuery.matches ? 'auto' : 'smooth', block: 'center' });
+      if (firstMissing.matches('input')) firstMissing.focus({ preventScroll: true });
       return;
     }
     if (!syncServiceDetails()) {

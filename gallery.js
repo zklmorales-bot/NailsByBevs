@@ -255,8 +255,34 @@
     if (lightboxCaption) lightboxCaption.textContent = photoCaption(photos[index]);
   }
 
+  var lightboxHistoryDirty = false; // our pushed history entry is still on top
+  var lightboxCloseTimer = null;
+  var lightboxClosing = false;
+
+  function finishClose() {
+    if (!lightboxClosing) return;
+    lightboxClosing = false;
+    if (lightboxCloseTimer) { clearTimeout(lightboxCloseTimer); lightboxCloseTimer = null; }
+    lightbox.classList.remove('is-closing');
+    lightbox.hidden = true;
+    lightboxImg.src = '';
+    document.body.classList.remove('lightbox-open');
+    lightboxIndex = -1;
+    // Drop the history entry we added, unless the back button already did
+    if (lightboxHistoryDirty) {
+      lightboxHistoryDirty = false;
+      history.back();
+    }
+  }
+
   function openLightbox(photo) {
     if (!lightbox || !lightboxImg) return;
+    // Cancel a close animation that is still running
+    if (lightboxClosing) {
+      lightboxClosing = false;
+      if (lightboxCloseTimer) { clearTimeout(lightboxCloseTimer); lightboxCloseTimer = null; }
+      lightbox.classList.remove('is-closing');
+    }
     var index = photos.indexOf(photo);
     if (index === -1) return;
     lightboxIndex = index;
@@ -265,15 +291,43 @@
     if (lightboxNext) lightboxNext.style.visibility = photos.length > 1 ? 'visible' : 'hidden';
     lightbox.hidden = false;
     document.body.classList.add('lightbox-open');
+    // Add a history entry so the phone's back button or swipe-back gesture
+    // closes the viewer instead of leaving the page
+    if (!lightboxHistoryDirty && (!history.state || !history.state.lightbox)) {
+      history.pushState({ lightbox: true }, '', location.href);
+      lightboxHistoryDirty = true;
+    }
     lightboxClose.focus();
   }
 
-  function closeLightbox() {
-    if (!lightbox) return;
-    lightbox.hidden = true;
-    lightboxImg.src = '';
-    document.body.classList.remove('lightbox-open');
-    lightboxIndex = -1;
+  function closeLightbox(fromHistory) {
+    if (!lightbox || lightbox.hidden || lightboxClosing) return;
+    if (fromHistory) lightboxHistoryDirty = false; // the back press already consumed our entry
+    if (reduceMotion) { lightboxClosing = true; finishClose(); return; }
+    // Fade out first, then finish closing so the exit matches the entrance
+    lightboxClosing = true;
+    lightbox.classList.add('is-closing');
+    var onEnd = function (event) {
+      if (event.target !== lightbox) return; // ignore child animations (photo slides)
+      lightbox.removeEventListener('animationend', onEnd);
+      finishClose();
+    };
+    lightbox.addEventListener('animationend', onEnd);
+    lightboxCloseTimer = setTimeout(function () {
+      lightbox.removeEventListener('animationend', onEnd);
+      finishClose();
+    }, 240);
+  }
+
+  // Back button / swipe-back gesture closes the lightbox instead of leaving
+  window.addEventListener('popstate', function () {
+    lightboxHistoryDirty = false;
+    closeLightbox(true);
+  });
+  // A refresh while the viewer was open can leave a stale flag in history;
+  // clear it so the next back press navigates normally
+  if (history.state && history.state.lightbox) {
+    history.replaceState(null, '', location.href);
   }
 
   function stepLightbox(delta) {
