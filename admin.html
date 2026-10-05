@@ -125,7 +125,7 @@
       
       <!-- Booking Requests Panel -->
       <section class="panel">
-        <div class="toolbar"><h2>Booking requests</h2><button id="refresh" class="button secondary" type="button">Refresh</button></div>
+        <div class="toolbar"><h2>Booking requests</h2><div class="actions"><button id="ping-api" class="button secondary" type="button" title="Sends a sample request to keep the API active">Ping API</button><button id="refresh" class="button secondary" type="button">Refresh</button></div></div>
         <div class="filter-bar">
           <div class="search-box">
             <input id="search-input" type="search" placeholder="Search by name, email, phone, date, service..." autocomplete="off">
@@ -266,6 +266,7 @@
     const searchInput = document.getElementById('search-input');
     const statusFilter = document.getElementById('status-filter');
     const searchMeta = document.getElementById('search-meta');
+    const pingApiBtn = document.getElementById('ping-api');
 
     // Bulk action elements
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
@@ -385,12 +386,22 @@
 
     async function adminRequest(body) {
       const { data } = await supabaseClient.auth.getSession();
-      const response = await fetch(ADMIN_API_URL, {
-        method: body ? 'POST' : 'GET',
-        headers: { Authorization: 'Bearer ' + data.session.access_token, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
-      });
-      const result = await response.json();
+      let response;
+      try {
+        response = await fetch(ADMIN_API_URL, {
+          method: body ? 'POST' : 'GET',
+          headers: { Authorization: 'Bearer ' + data.session.access_token, 'Content-Type': 'application/json' },
+          body: body ? JSON.stringify(body) : undefined
+        });
+      } catch (networkError) {
+        throw new Error('Admin API is unreachable — the Supabase project may be paused or offline. Restore it from the Supabase dashboard, then try again.');
+      }
+      let result;
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        throw new Error('Admin API returned an invalid response (HTTP ' + response.status + '). The API may be down — try again shortly or check the Supabase dashboard.');
+      }
       if (!response.ok || !result.ok) throw new Error(result.message || 'Admin request failed');
       return result;
     }
@@ -1158,6 +1169,26 @@
     document.getElementById('login-form').addEventListener('submit', async (event) => { event.preventDefault(); const message = document.getElementById('login-message'); try { const { error } = await supabaseClient.auth.signInWithPassword({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value }); if (error) throw error; loginPanel.classList.add('hidden'); dashboard.classList.remove('hidden'); await loadDashboard(); } catch (error) { message.textContent = error.message; } });
     document.getElementById('logout').addEventListener('click', async () => { await supabaseClient.auth.signOut(); dashboard.classList.add('hidden'); loginPanel.classList.remove('hidden'); });
     document.getElementById('refresh').addEventListener('click', () => loadDashboard().catch((error) => { dashboardMessage.textContent = error.message; }));
+
+    // Ping API: sends a sample request through admin-api so the Supabase project
+    // registers activity (free-tier projects pause after a week of inactivity),
+    // and reports whether the API is alive and how fast it responded.
+    pingApiBtn.addEventListener('click', async () => {
+      pingApiBtn.disabled = true;
+      const originalLabel = pingApiBtn.textContent;
+      pingApiBtn.textContent = 'Pinging...';
+      const startedAt = performance.now();
+      try {
+        const result = await adminRequest();
+        const elapsed = Math.round(performance.now() - startedAt);
+        dashboardMessage.textContent = `✅ API responded in ${elapsed} ms — ${(result.bookings || []).length} booking(s), ${(result.blocks || []).length} blocked date(s) loaded.`;
+      } catch (error) {
+        dashboardMessage.textContent = `❌ API ping failed: ${error.message}. If the project was paused for inactivity, restore it from the Supabase dashboard, then try again.`;
+      } finally {
+        pingApiBtn.disabled = false;
+        pingApiBtn.textContent = originalLabel;
+      }
+    });
     
     // Single card action listener
     bookingsElement.addEventListener('click', async (event) => {

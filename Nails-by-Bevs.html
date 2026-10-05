@@ -731,6 +731,9 @@
   updateNav();
 
   const BOOKING_API_URL = 'https://ukfbbatyucebrtmaruba.supabase.co/functions/v1/booking-api';
+  // Shown whenever the booking API cannot be reached, so clients know what
+  // happened and how to book directly or report the outage to the studio.
+  const API_DOWN_HELP = 'Our booking system is temporarily unavailable. Please try again in a few minutes, or DM us on Instagram <a href="https://www.instagram.com/nails.by.bevs" target="_blank" rel="noopener">@nails.by.bevs</a> and we will book you in manually.';
   const bookingForm = document.getElementById('booking-form');
   const bookingDate = document.getElementById('date');
   const bookingTime = document.getElementById('time');
@@ -1164,10 +1167,10 @@
     })
     .catch((error) => {
       calendarMonthLabel.textContent = 'Unavailable';
-      calendarGrid.innerHTML = '<span class="calendar-error">Availability is temporarily unavailable. Please try again later.</span>';
+      calendarGrid.innerHTML = '<span class="calendar-error">' + API_DOWN_HELP + '</span>';
       calendarPrevious.disabled = true;
       calendarNext.disabled = true;
-      bookingStatus.textContent = 'Availability is temporarily unavailable. Please try again later.';
+      bookingStatus.innerHTML = API_DOWN_HELP;
     });
 
   async function submitBooking() {
@@ -1191,7 +1194,11 @@
         body: JSON.stringify(formData)
       });
       const result = await response.json();
-      if (!response.ok || !result.ok) throw new Error(result.message || 'Booking request failed.');
+      if (!response.ok || !result.ok) {
+        const apiError = new Error(result.message || 'Booking request failed.');
+        apiError.apiMessage = result.message || null;
+        throw apiError;
+      }
       bookingReview.hidden = true;
       bookingSuccess.hidden = false;
       bookingSubmit.disabled = false;
@@ -1200,7 +1207,13 @@
       bookingConfirm.disabled = false;
       bookingConfirm.textContent = 'Confirm booking';
       bookingSubmit.disabled = false;
-      bookingModalStatus.textContent = 'Something went wrong. Please try again.';
+      if (error.apiMessage) {
+        // The API answered (e.g. slot conflict) — show its real message.
+        bookingModalStatus.textContent = error.apiMessage;
+      } else {
+        // Fetch/network/JSON failure — the API itself is down or unreachable.
+        bookingModalStatus.innerHTML = API_DOWN_HELP;
+      }
     }
   }
 
