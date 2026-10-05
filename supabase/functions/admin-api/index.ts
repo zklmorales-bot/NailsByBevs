@@ -89,7 +89,7 @@ async function sendUserConfirmationEmail(booking: Record<string, unknown>) {
   }
 }
 
-async function sendUserRejectionEmail(booking: Record<string, unknown>, adminNote?: string | null) {
+async function sendUserRejectionEmail(booking: Record<string, unknown>, adminNote?: string | null, status: 'REJECTED' | 'CANCELLED' = 'REJECTED') {
   const resendKey = Deno.env.get('RESEND_API_KEY');
   if (!resendKey) return { sent: false, missing: false };
 
@@ -98,16 +98,23 @@ async function sendUserRejectionEmail(booking: Record<string, unknown>, adminNot
     return { sent: false, missing: true }; // Triggers Requirement 4
   }
 
+  const isCancellation = status === 'CANCELLED';
   const noteText = adminNote 
     ? `<p><strong>Reason / Next Steps:</strong> ${adminNote}</p>` 
-    : '<p>Please contact us to discuss alternative dates or services.</p>';
+    : (isCancellation
+      ? '<p>If you have any questions or would like to rebook, please contact us.</p>'
+      : '<p>Please contact us to discuss alternative dates or services.</p>');
+
+  const headline = isCancellation
+    ? `<p>Unfortunately, your appointment for <strong>${booking.preferred_date}</strong> at <strong>${String(booking.preferred_time).slice(0, 5)}</strong> has been cancelled.</p>`
+    : `<p>Thank you for your booking request. Unfortunately, we are unable to confirm your appointment for <strong>${booking.preferred_date}</strong> at <strong>${String(booking.preferred_time).slice(0, 5)}</strong>.</p>`;
 
   const message = {
     to: [userEmail],
-    subject: 'Update regarding your Nails by Bevs appointment',
+    subject: isCancellation ? 'Your Nails by Bevs appointment has been cancelled' : 'Update regarding your Nails by Bevs appointment',
     html: `
       <h2>Hi ${booking.full_name},</h2>
-      <p>Thank you for your booking request. Unfortunately, we are unable to confirm your appointment for <strong>${booking.preferred_date}</strong> at <strong>${String(booking.preferred_time).slice(0, 5)}</strong>.</p>
+      ${headline}
       ${noteText}
       <p>We apologize for any inconvenience. Please feel free to reach out to book a different time or if you have any questions.</p>
       <p>Best regards,<br>Nails by Bevs</p>
@@ -183,7 +190,7 @@ Deno.serve(async (request) => {
 
       let emailResult = { sent: false, missing: false };
       if (body.status === 'REJECTED' || body.status === 'CANCELLED') {
-        emailResult = await sendUserRejectionEmail(booking, body.adminNote);
+        emailResult = await sendUserRejectionEmail(booking, body.adminNote, body.status);
       }
 
       return json({ 
@@ -271,7 +278,7 @@ Deno.serve(async (request) => {
       let missingEmails: string[] = [];
       if (body.status === 'REJECTED' || body.status === 'CANCELLED') {
         for (const booking of bookings) {
-          const emailResult = await sendUserRejectionEmail(booking, body.adminNote);
+          const emailResult = await sendUserRejectionEmail(booking, body.adminNote, body.status);
           if (emailResult.missing) {
             missingEmails.push(booking.id);
           }

@@ -524,7 +524,16 @@
       bookingsElement.innerHTML = bookings.map((booking) => {
         const isSelected = selectedBookingIds.has(booking.id);
         const references = (booking.reference_urls || []).map((url, index) => `<a href="${url}" target="_blank" rel="noopener">Reference photo ${index + 1}</a>`).join('');
-        const confirmButton = booking.status === 'PENDING' ? `<button class="button" data-action="confirm" data-id="${booking.id}">Confirm</button>` : '';
+        const deleteButton = `<button class="button danger" data-action="delete" data-id="${booking.id}" data-name="${escapeHtml(booking.full_name)}">Delete</button>`;
+        let actionButtons = '';
+        if (booking.status === 'PENDING') {
+          actionButtons = `\n              <button class="button" data-action="confirm" data-id="${booking.id}">Confirm</button>\n              <button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button>\n              ${deleteButton}`;
+        } else if (booking.status === 'CONFIRMED') {
+          // Confirmed bookings move on: mark completed, cancel, or delete.
+          actionButtons = `\n              <button class="button" data-action="complete" data-id="${booking.id}">Complete</button>\n              <button class="button secondary" data-action="cancel" data-id="${booking.id}" data-name="${escapeHtml(booking.full_name)}">Cancel</button>\n              ${deleteButton}`;
+        } else {
+          actionButtons = `\n              <button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button>\n              ${deleteButton}`;
+        }
         return `
           <article class="booking ${isSelected ? 'selected' : ''}" data-booking-id="${booking.id}">
             <div class="booking-checkbox-col">
@@ -538,10 +547,7 @@
               <p>${escapeHtml(booking.admin_note || '')}</p>
               <div class="links">${references}</div>
             </div>
-            <div class="actions">
-              ${confirmButton}
-              <button class="button secondary" data-action="reject" data-id="${booking.id}">Reject</button>
-              <button class="button danger" data-action="delete" data-id="${booking.id}" data-name="${escapeHtml(booking.full_name)}">Delete</button>
+            <div class="actions">${actionButtons}
             </div>
           </article>
         `;
@@ -755,7 +761,9 @@
       if (start > end) return [];
       const curr = new Date(start);
       while (curr <= end) {
-        dates.push(curr.toISOString().slice(0, 10));
+        // Format from local date parts (not toISOString) so UTC+ timezones
+        // don't shift every date back by one day.
+        dates.push(formatDateForInput(curr));
         curr.setDate(curr.getDate() + 1);
       }
       return dates;
@@ -1202,6 +1210,29 @@
             dashboardMessage.textContent = 'Booking rejected and notification email sent to the client.';
           } else {
             dashboardMessage.textContent = 'Booking marked as rejected.';
+          }
+        } else if (action === 'complete') {
+          await adminRequest({ action: 'status', id, status: 'COMPLETED' });
+          dashboardMessage.textContent = 'Booking marked as completed. The appointment slot is now free for new bookings.';
+        } else if (action === 'cancel') {
+          const confirmed = await customConfirm({
+            eyebrow: 'Studio action',
+            title: 'Cancel confirmed booking',
+            message: `Are you sure you want to cancel the confirmed booking for "${name}"? The client will be notified by email and the slot will reopen for booking.`,
+            confirmText: 'Cancel booking',
+            confirmClass: 'button secondary'
+          });
+          if (!confirmed) {
+            button.disabled = false;
+            return; // User cancelled the cancellation
+          }
+          const result = await adminRequest({ action: 'status', id, status: 'CANCELLED' });
+          if (result.emailMissing) {
+            alert("⚠️ This client did not provide an email address!\n\nPlease call them manually to let them know about the cancellation.");
+          } else if (result.emailSent) {
+            dashboardMessage.textContent = 'Booking cancelled and notification email sent to the client.';
+          } else {
+            dashboardMessage.textContent = 'Booking cancelled.';
           }
         }
         await loadDashboard();
