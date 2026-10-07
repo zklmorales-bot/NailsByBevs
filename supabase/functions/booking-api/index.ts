@@ -107,7 +107,7 @@ function validateBooking(data: Record<string, unknown>) {
     throw new Error('A valid email is required if provided');
   }
   if (!instagramHandle) {
-    throw new Error('An Instagram username or link is required');
+    throw new Error('An Instagram or TikTok username or link is required');
   }
 
   const parts = [baseService, ...addons.map((addon) => `${addon.name} x${addon.quantity}`)];
@@ -166,7 +166,7 @@ async function sendNewBookingEmail(booking: any) {
   const emailBody = `
     <h2>✨ New Booking Request</h2>
     <p><strong>Name:</strong> ${booking.full_name}</p>
-    <p><strong>Instagram:</strong> ${booking.instagram_handle || 'Not provided'}</p>
+    <p><strong>Instagram / TikTok:</strong> ${booking.instagram_handle || 'Not provided'}</p>
     <p><strong>Email:</strong> ${booking.email || 'Not provided'}</p>
     <p><strong>Phone:</strong> ${booking.phone || 'Not provided'}</p>
     <p><strong>Date:</strong> ${booking.preferred_date}</p>

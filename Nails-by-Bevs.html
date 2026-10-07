@@ -596,8 +596,8 @@
           </div>
         </div>
         <div>
-          <label for="instagram-handle">Instagram <span style="color:#8b7072">(required)</span></label>
-          <input id="instagram-handle" name="instagramHandle" type="text" placeholder="@yourhandle or profile link" autocomplete="username" aria-required="true">
+          <label for="instagram-handle">Instagram or TikTok <span style="color:#8b7072">(required)</span></label>
+          <input id="instagram-handle" name="instagramHandle" type="text" placeholder="@yourhandle or profile link (either app)" autocomplete="username" aria-required="true">
         </div>
         <div class="row2">
           <div>
@@ -657,7 +657,7 @@
         <dt>Add-ons</dt><dd id="summary-addons"></dd>
         <dt>Removal</dt><dd id="summary-removal"></dd>
         <dt>Reference photos</dt><dd id="summary-references"></dd>
-        <dt>Instagram</dt><dd id="summary-instagram"></dd>
+        <dt>Instagram / TikTok</dt><dd id="summary-instagram"></dd>
         <dt>Email</dt><dd id="summary-email"></dd>
         <dt>Phone</dt><dd id="summary-phone"></dd>
       </dl>
@@ -1323,7 +1323,7 @@
     if (!bookingDate.value) { missing.push('an appointment date'); flagged.push(calendarGrid.closest('.calendar')); }
     if (!bookingTime.value) { missing.push('a time slot'); flagged.push(timePicker); }
     if (!baseService.value) { missing.push('a base service'); flagged.push(baseServicePicker); }
-    if (!bookingInstagram.value.trim()) { missing.push('your Instagram handle'); flagged.push(bookingInstagram); }
+    if (!bookingInstagram.value.trim()) { missing.push('your Instagram or TikTok handle'); flagged.push(bookingInstagram); }
     if (bookingEmail.value.trim() && !/^\S+@\S+\.\S+$/.test(bookingEmail.value.trim())) {
       missing.push('a valid email address (or leave it blank)');
       flagged.push(bookingEmail);

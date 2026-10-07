@@ -554,7 +554,7 @@
               <h3>${escapeHtml(booking.full_name)} <span class="status status-${booking.status}">${booking.status}</span></h3>
               <p><strong>${escapeHtml(booking.preferred_date)} at ${escapeHtml(String(booking.preferred_time).slice(0,5))}</strong></p>
               ${renderServiceBreakdown(booking)}
-              <p>${escapeHtml(booking.instagram_handle || 'No Instagram provided')}${booking.email ? ' · ' + escapeHtml(booking.email) : ''}${booking.phone ? ' · ' + escapeHtml(booking.phone) : ''}</p>
+              <p>${escapeHtml(booking.instagram_handle || 'No Instagram/TikTok provided')}${booking.email ? ' · ' + escapeHtml(booking.email) : ''}${booking.phone ? ' · ' + escapeHtml(booking.phone) : ''}</p>
               <p>${escapeHtml(booking.admin_note || '')}</p>
               <div class="links">${references}</div>
             </div>
