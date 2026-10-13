@@ -75,6 +75,34 @@
     .btn-sm{padding:6px 12px;font-size:.82rem}
     .empty-blocks{color:var(--muted);font-size:.9rem;margin:8px 0}
 
+    /* Overview month calendar (confirmed appointments + blocked dates) */
+    .cal-overview{border:1px solid var(--line);background:var(--white);margin-top:16px}
+    .cal-overview-head{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;padding:20px 16px 8px}
+    .cal-overview-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:2.3rem;color:var(--dark);text-align:center;margin:0;line-height:1}
+    .cal-overview-year{display:block;font-family:'Jost',sans-serif;font-weight:400;font-size:.8rem;letter-spacing:.22em;color:var(--oxblood);text-align:center;margin-top:4px}
+    .cal-nav{width:36px;height:36px;border:1px solid var(--line);background:var(--white);color:var(--oxblood);font-size:1.25rem;cursor:pointer;line-height:1;transition:background .15s ease,color .15s ease,border-color .15s ease}
+    .cal-nav:hover{background:var(--oxblood);color:var(--white);border-color:var(--oxblood)}
+    .cal-weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .cal-weekdays span{padding:10px 0;text-align:center;font-size:.68rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fdfaf9}
+    .cal-cell{min-height:96px;padding:8px 8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--white)}
+    .cal-cell.blank{background:#faf7f6}
+    .cal-cell.past{background:#faf7f6}
+    .cal-cell.past .cal-daynum{color:#c3b3b5}
+    .cal-cell.blocked-full{background:repeating-linear-gradient(-45deg,#f4e8e7,#f4e8e7 7px,#fdfaf9 7px,#fdfaf9 14px)}
+    .cal-cell.blocked-full.past{background:repeating-linear-gradient(-45deg,#f5efee,#f5efee 7px,#faf7f6 7px,#faf7f6 14px)}
+    .cal-daynum{display:block;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.2rem;color:var(--dark);line-height:1.4;margin:0 0 3px}
+    .cal-cell.today .cal-daynum{background:var(--oxblood);color:var(--white);border-radius:50%;width:26px;height:26px;text-align:center;line-height:26px}
+    .cal-chip{display:block;width:fit-content;font-size:.66rem;padding:2px 8px;margin:3px 0 0;border-radius:10px;line-height:1.4;white-space:nowrap}
+    .cal-chip.open{background:var(--white);border:1px solid var(--oxblood);color:var(--oxblood);font-weight:500}
+    .cal-closed{display:block;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#8b7072;margin-top:4px}
+    .cal-legend{display:flex;gap:18px;flex-wrap:wrap;padding:12px 16px;font-size:.78rem;color:var(--muted);border-top:1px solid var(--line);background:#fdfaf9}
+    .cal-legend-item{display:inline-flex;align-items:center;gap:7px}
+    .cal-legend-swatch{width:14px;height:14px;border-radius:3px;display:inline-block;flex:0 0 auto}
+    .cal-legend-swatch.open{background:var(--white);border:1px solid var(--oxblood)}
+    .cal-legend-swatch.full{background:repeating-linear-gradient(-45deg,#f4e8e7,#f4e8e7 4px,#fdfaf9 4px,#fdfaf9 8px);border:1px solid var(--line)}
+    .cal-legend-swatch.partial{background:#fdf5f4;border:1px dashed #c9a9ac}
+    .cal-legend-swatch.today{background:var(--oxblood);border-radius:50%}
+
     /* Branded Custom Modal */
     .modal-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(42,20,22,.52);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .2s ease}
     .modal-overlay.open{opacity:1;pointer-events:auto}
@@ -123,6 +151,25 @@
     <section id="dashboard" class="hidden">
       <div class="toolbar"><div><p class="eyebrow">Nails by Bevs</p><h1>Booking control</h1></div><button id="logout" class="button secondary" type="button">Sign out</button></div>
       
+      <!-- Overview Calendar Panel -->
+      <section class="panel">
+        <div class="toolbar"><div><h2>Studio calendar</h2><p class="section-sub">Available time slots and blocked dates at a glance.</p></div></div>
+        <div class="cal-overview">
+          <div class="cal-overview-head">
+            <button id="cal-prev" class="cal-nav" type="button" aria-label="Previous month">‹</button>
+            <h3 id="cal-title" class="cal-overview-title"></h3>
+            <button id="cal-next" class="cal-nav" type="button" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+          <div id="overview-calendar" class="cal-grid"></div>
+          <div class="cal-legend">
+            <span class="cal-legend-item"><span class="cal-legend-swatch open"></span>Open slot</span>
+            <span class="cal-legend-item"><span class="cal-legend-swatch full"></span>Not available</span>
+            <span class="cal-legend-item"><span class="cal-legend-swatch today"></span>Today</span>
+          </div>
+        </div>
+      </section>
+
       <!-- Booking Requests Panel -->
       <section class="panel">
         <div class="toolbar"><h2>Booking requests</h2><div class="actions"><button id="ping-api" class="button secondary" type="button" title="Sends a sample request to keep the API active">Ping API</button><button id="refresh" class="button secondary" type="button">Refresh</button></div></div>
@@ -607,11 +654,89 @@
       document.getElementById('select-all-blocks').checked = allChecked;
     }
 
+    // Overview month calendar: confirmed appointments + blocked dates, themed to the app.
+    const calState = { y: new Date().getFullYear(), m: new Date().getMonth() };
+    const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function renderOverviewCalendar() {
+      const year = calState.y;
+      const month = calState.m;
+      document.getElementById('cal-title').innerHTML = `${CAL_MONTHS[month]}<span class="cal-overview-year">${year}</span>`;
+
+      const firstWeekday = new Date(year, month, 1).getDay(); // Sunday-first
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Group data by date key (YYYY-MM-DD) — confirmed bookings consume slots
+      const confirmedByDate = {};
+      rawBookings.forEach((b) => {
+        if (b.status !== 'CONFIRMED') return;
+        if (!confirmedByDate[b.preferred_date]) confirmedByDate[b.preferred_date] = [];
+        confirmedByDate[b.preferred_date].push({
+          time: String(b.preferred_time || '').slice(0, 5),
+          name: b.full_name || ''
+        });
+      });
+      const blockedByDate = {};
+      rawBlocks.forEach((block) => {
+        if (block.status && block.status !== 'BLOCKED') return;
+        if (!blockedByDate[block.block_date]) blockedByDate[block.block_date] = { full: false, times: [] };
+        if (block.block_time === 'ALL') blockedByDate[block.block_date].full = true;
+        else blockedByDate[block.block_date].times.push(block.block_time);
+      });
+
+      const todayKey = toKey(new Date());
+      let cells = '';
+      for (let i = 0; i < firstWeekday; i += 1) cells += '<div class="cal-cell blank"></div>';
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const blockInfo = blockedByDate[key];
+        const bookedTimes = new Set((confirmedByDate[key] || []).map((b) => b.time));
+        const classes = ['cal-cell'];
+        if (key < todayKey) classes.push('past');
+        if (key === todayKey) classes.push('today');
+
+        let inner = `<span class="cal-daynum">${day}</span>`;
+        const fullyBlocked = Boolean(blockInfo && blockInfo.full);
+        const isPast = key < todayKey;
+        let available = [];
+        if (!fullyBlocked) {
+          // Open slots = studio schedule (weekday/weekend) minus blocked minus confirmed.
+          const dayOfWeek = parseKey(key).getDay();
+          const schedule = (dayOfWeek === 0 || dayOfWeek === 6) ? WEEKEND_SLOTS : WEEKDAY_SLOTS;
+          const blockedTimes = new Set(blockInfo ? blockInfo.times : []);
+          available = schedule.filter((t) => !blockedTimes.has(t) && !bookedTimes.has(t));
+        }
+        // Two visual states: open slot chips, or diagonal hatch when nothing is available.
+        if (fullyBlocked || (!isPast && !available.length)) {
+          classes.push('blocked-full');
+          if (!isPast) inner += `<span class="cal-closed">${fullyBlocked ? 'Unavailable' : 'Fully booked'}</span>`;
+        } else if (!isPast) {
+          available.forEach((t) => {
+            inner += `<span class="cal-chip open" title="${escapeHtml('Open: ' + formatTimeLabel(t))}">${escapeHtml(formatTimeLabel(t))}</span>`;
+          });
+        }
+        cells += `<div class="${classes.join(' ')}" title="${escapeHtml(key)}">${inner}</div>`;
+      }
+      document.getElementById('overview-calendar').innerHTML = cells;
+    }
+
+    document.getElementById('cal-prev').addEventListener('click', () => {
+      calState.m -= 1;
+      if (calState.m < 0) { calState.m = 11; calState.y -= 1; }
+      renderOverviewCalendar();
+    });
+    document.getElementById('cal-next').addEventListener('click', () => {
+      calState.m += 1;
+      if (calState.m > 11) { calState.m = 0; calState.y += 1; }
+      renderOverviewCalendar();
+    });
+
     async function loadDashboard() {
       const result = await adminRequest();
       rawBookings = result.bookings || [];
       filterAndRenderBookings();
       renderBlocks(result.blocks || []);
+      renderOverviewCalendar();
     }
 
     // Select all checkbox handler
