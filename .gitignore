@@ -7,3 +7,6 @@ Thumbs.db
 
 # Private: admin dashboard QR (never publish)
 qr/admin-qr-*.png
+
+# Throwaway render/preview artifacts from build scripts
+scripts/tmp-render/
